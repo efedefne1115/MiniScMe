@@ -685,6 +685,7 @@
               <div class="game-overlay-title" id="gameOverlayTitle">Başlamak için dokun</div>
               <div class="game-overlay-score hidden" id="gameOverlayScore"></div>
               <button class="btn btn-primary btn-sm" id="gameStartBtn">Başla</button>
+              <button class="btn btn-ghost btn-sm hidden" id="gameShareBtn" style="margin-top:8px;">Arkadaşlarınla Paylaş</button>
             </div>
           </div>
         </div>
@@ -1974,6 +1975,8 @@ function openChat(chatId, otherUid, otherName){
         if(m.replyTo) html += `<div class="reply-quote"><b>${esc(m.replyTo.authorName)}</b>: ${esc((m.replyTo.text||'').slice(0,60))}</div>`;
         if(m.type === 'shared_post' && m.sharedPost){
           html += `<div class="shared-post-card"><div class="spc-author">${esc(m.sharedPost.author)}</div><div class="spc-text">${esc(m.sharedPost.text)}</div><div class="spc-likes">♥ ${m.sharedPost.likes||0}</div></div>`;
+        } else if(m.type === 'shared_score' && m.sharedScore){
+          html += `<div class="shared-post-card"><div class="spc-author">🏆 Flappy Dot</div><div class="spc-text">Skor: ${m.sharedScore.score}</div></div>`;
         } else {
           html += esc(m.text) + (m.edited?'<span class="msg-edited-tag">düzenlendi</span>':'');
         }
@@ -2449,7 +2452,7 @@ function initFlappyGame(){
   window.addEventListener('resize', resize);
 
   const G = { running:false, started:false, over:false, bird:{x:0,y:0,vy:0,r:14}, pipes:[], score:0,
-    gravity:0.5, flapV:-8, pipeGap:150, pipeW:52, speed:2.4, lastSpawn:0 };
+    gravity:0.32, flapV:-6.4, pipeGap:165, pipeW:52, speed:2.0, lastSpawn:0 };
 
   function reset(){
     G.bird.x = W*0.28; G.bird.y = H/2; G.bird.vy = 0;
@@ -2466,7 +2469,7 @@ function initFlappyGame(){
 
   function flap(){
     if(G.over) return;
-    if(!G.started){ G.started = true; G.running = true; document.getElementById('gameOverlay').classList.add('hidden'); }
+    if(!G.started){ G.started = true; G.running = true; document.getElementById('gameOverlay').classList.add('hidden'); document.getElementById('gameShareBtn').classList.add('hidden'); }
     G.bird.vy = G.flapV;
   }
 
@@ -2484,6 +2487,9 @@ function initFlappyGame(){
     scoreEl.classList.remove('hidden');
     document.getElementById('gameStartBtn').textContent = 'Tekrar Oyna';
     document.getElementById('gameOverlay').classList.remove('hidden');
+    const shareBtn = document.getElementById('gameShareBtn');
+    shareBtn.classList.remove('hidden');
+    shareBtn.onclick = ()=> openShareScoreModal(G.score);
   }
 
   function roundRect(x,y,w,h,r){
@@ -2544,6 +2550,68 @@ function initFlappyGame(){
   document.getElementById('gameBestScore').textContent = state.profile.flappyHighScore || 0;
   if(flappyRaf) cancelAnimationFrame(flappyRaf);
   flappyRaf = requestAnimationFrame(loop);
+}
+
+function openShareScoreModal(score){
+  const friends = state.friendsData || [];
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="shareScoreOverlay">
+      <div class="modal-card">
+        <div class="modal-title">Skoru Paylaş</div>
+        <div id="shareScoreFriendsList">${friends.length===0
+          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div>'
+          : friends.map(f=>`
+            <div class="friend-row">
+              <div class="avatar sm">${esc(initials(f.username))}</div>
+              <div class="meta">${esc(f.username)}</div>
+              <button class="btn btn-primary btn-sm share-score-btn" data-uid="${f.uid}" data-name="${esc(f.username)}">Gönder</button>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('shareScoreOverlay').onclick = (e)=>{ if(e.target.id==='shareScoreOverlay') closeModal(); };
+  document.getElementById('shareScoreFriendsList').addEventListener('click', async (e)=>{
+    const btn = e.target.closest('.share-score-btn');
+    if(!btn) return;
+    btn.disabled = true; btn.textContent = 'Gönderiliyor…';
+    const ok = await shareScoreToFriend(score, btn.dataset.uid, btn.dataset.name);
+    if(ok){ btn.textContent = 'Gönderildi ✓'; } else { btn.disabled = false; btn.textContent = 'Gönder'; }
+  });
+}
+
+async function shareScoreToFriend(score, friendUid, friendUsername){
+  try{
+    const cid = chatIdFor(state.uid, friendUid);
+    const ref = db.collection('chats').doc(cid);
+    const doc = await safeGetDoc(ref);
+    const preview = state.profile.hideMessagePreview ? 'Yeni mesaj' : '🏆 Oyun skoru gönderildi';
+    if(!doc.exists){
+      await ref.set({
+        participants: [state.uid, friendUid],
+        usernames: { [state.uid]: state.profile.username, [friendUid]: friendUsername },
+        status: 'accepted', requestedBy: state.uid,
+        lastMessage: preview, lastSenderUid: state.uid,
+        messageCount: 0, readCount: {},
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    await db.collection('chats').doc(cid).collection('messages').add({
+      uid: state.uid, type:'shared_score',
+      sharedScore: { score },
+      text: '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
+    });
+    await ref.update({
+      lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      messageCount: firebase.firestore.FieldValue.increment(1),
+      ['readCount.'+state.uid]: firebase.firestore.FieldValue.increment(1)
+    });
+    toast(friendUsername + ' kişisine gönderildi.');
+    return true;
+  }catch(e){
+    toast('Gönderilemedi, tekrar dene.');
+    return false;
+  }
 }
 
 function bindSwitch(elId, field){
