@@ -691,6 +691,25 @@
         </div>
         <div class="game-score-live" id="gameLiveScore">0</div>
       </div>
+
+      <div class="game-card" style="margin-top:16px;">
+        <div class="game-header">
+          <div class="game-title">Short Snake</div>
+          <div class="game-best">En iyi: <b id="snakeBestScore">0</b></div>
+        </div>
+        <div class="game-canvas-wrap">
+          <canvas id="snakeCanvas"></canvas>
+          <div class="game-overlay" id="snakeOverlay">
+            <div class="game-overlay-inner">
+              <div class="game-overlay-title" id="snakeOverlayTitle">Başlamak için dokun</div>
+              <div class="game-overlay-score hidden" id="snakeOverlayScore"></div>
+              <button class="btn btn-primary btn-sm" id="snakeStartBtn">Başla</button>
+              <button class="btn btn-ghost btn-sm hidden" id="snakeShareBtn" style="margin-top:8px;">Arkadaşlarınla Paylaş</button>
+            </div>
+          </div>
+        </div>
+        <div class="game-score-live" id="snakeLiveScore">0</div>
+      </div>
     </section>
 
     <!-- SETTINGS -->
@@ -1118,7 +1137,8 @@ document.getElementById('signupForm').addEventListener('submit', async (e)=>{
       theme: 'gold',
       blocked: [],
       lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-      flappyHighScore: 0
+      flappyHighScore: 0,
+      snakeHighScore: 0
     });
     await batch.commit();
     toast('Hesap oluşturuldu, hoş geldin!');
@@ -1245,7 +1265,7 @@ function teardownListeners(){
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     switchView(btn.dataset.view);
-    if(btn.dataset.view === 'games' && !state.gameInited){ state.gameInited = true; initFlappyGame(); }
+    if(btn.dataset.view === 'games' && !state.gameInited){ state.gameInited = true; initFlappyGame(); initSnakeGame(); }
   });
 });
 document.getElementById('headerAvatarBtn').addEventListener('click', ()=> switchView('profile'));
@@ -1851,8 +1871,8 @@ function renderChatsAndRequests(){
     } else if(c.status === 'accepted'){
       accepted.push(item);
       const t = c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : 0;
-      const prev = state.chatLastSeen[doc.id];
-      if(state.chatsBooted && prev !== undefined && t > prev && c.lastSenderUid && c.lastSenderUid !== state.uid && doc.id !== state.activeChatId){
+      const prev = state.chatLastSeen[doc.id] !== undefined ? state.chatLastSeen[doc.id] : 0;
+      if(state.chatsBooted && t > prev && c.lastSenderUid && c.lastSenderUid !== state.uid && doc.id !== state.activeChatId){
         showTopNotif(otherName, c.lastMessage, doc.id, otherUid);
       }
       state.chatLastSeen[doc.id] = t;
@@ -1976,7 +1996,7 @@ function openChat(chatId, otherUid, otherName){
         if(m.type === 'shared_post' && m.sharedPost){
           html += `<div class="shared-post-card"><div class="spc-author">${esc(m.sharedPost.author)}</div><div class="spc-text">${esc(m.sharedPost.text)}</div><div class="spc-likes">♥ ${m.sharedPost.likes||0}</div></div>`;
         } else if(m.type === 'shared_score' && m.sharedScore){
-          html += `<div class="shared-post-card"><div class="spc-author">🏆 Flappy Dot</div><div class="spc-text">Skor: ${m.sharedScore.score}</div></div>`;
+          html += `<div class="shared-post-card"><div class="spc-author">🏆 ${esc(m.sharedScore.game||'Oyun')}</div><div class="spc-text">Skor: ${m.sharedScore.score}</div></div>`;
         } else {
           html += esc(m.text) + (m.edited?'<span class="msg-edited-tag">düzenlendi</span>':'');
         }
@@ -2435,6 +2455,150 @@ document.getElementById('roomLeaveOrDeleteBtn').onclick = ()=>{
    GAMES — Flappy Dot
 ========================================================= */
 let flappyRaf = null;
+let snakeRaf = null;
+function initSnakeGame(){
+  const canvas = document.getElementById('snakeCanvas');
+  const ctx = canvas.getContext('2d');
+  const cols = 14, rows = 18;
+  let W=0, H=0, cell=0;
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    W = rect.width; H = rect.height;
+    if(W===0 || H===0) return;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    cell = Math.min(W/cols, H/rows);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const S = { snake:[], dir:{x:1,y:0}, nextDir:{x:1,y:0}, food:null, running:false, started:false, over:false, speed:8, acc:0 };
+
+  function placeFood(){
+    const free = [];
+    for(let x=0;x<cols;x++) for(let y=0;y<rows;y++){
+      if(!S.snake.some(s=>s.x===x && s.y===y)) free.push({x,y});
+    }
+    if(free.length===0){ endGame(true); return; }
+    S.food = free[Math.floor(Math.random()*free.length)];
+  }
+
+  function reset(){
+    const cx = Math.floor(cols/2), cy = Math.floor(rows/2);
+    S.snake = [{x:cx-1,y:cy},{x:cx-2,y:cy},{x:cx-3,y:cy}];
+    S.dir = {x:1,y:0}; S.nextDir = {x:1,y:0};
+    S.over = false; S.started = false; S.running = false; S.acc = 0;
+    placeFood();
+    document.getElementById('snakeLiveScore').textContent = '0';
+  }
+  reset();
+
+  function start(){
+    if(S.over) return;
+    if(!S.started){ S.started = true; S.running = true; document.getElementById('snakeOverlay').classList.add('hidden'); document.getElementById('snakeShareBtn').classList.add('hidden'); }
+  }
+
+  function endGame(win){
+    S.over = true; S.running = false;
+    const score = S.snake.length - 3;
+    const best = Math.max(state.profile.snakeHighScore||0, score);
+    if(score > (state.profile.snakeHighScore||0)){
+      state.profile.snakeHighScore = score;
+      db.collection('users').doc(state.uid).update({ snakeHighScore: score }).catch(()=>{});
+    }
+    document.getElementById('snakeBestScore').textContent = best;
+    document.getElementById('snakeOverlayTitle').textContent = win ? 'Tebrikler, alan bitti!' : 'Oyun Bitti';
+    const scoreEl = document.getElementById('snakeOverlayScore');
+    scoreEl.textContent = 'Skor: ' + score;
+    scoreEl.classList.remove('hidden');
+    document.getElementById('snakeStartBtn').textContent = 'Tekrar Oyna';
+    document.getElementById('snakeOverlay').classList.remove('hidden');
+    const shareBtn = document.getElementById('snakeShareBtn');
+    shareBtn.classList.remove('hidden');
+    shareBtn.onclick = ()=> openShareScoreModal(score, 'Short Snake');
+  }
+
+  function setDir(x,y){
+    if(S.dir.x===-x && S.dir.y===-y) return;
+    S.nextDir = {x,y};
+  }
+  document.addEventListener('keydown', e=>{
+    const visible = !document.getElementById('gamesView').classList.contains('hidden');
+    if(!visible) return;
+    if(e.key==='ArrowUp'||e.key==='w'){ setDir(0,-1); start(); }
+    else if(e.key==='ArrowDown'||e.key==='s'){ setDir(0,1); start(); }
+    else if(e.key==='ArrowLeft'||e.key==='a'){ setDir(-1,0); start(); }
+    else if(e.key==='ArrowRight'||e.key==='d'){ setDir(1,0); start(); }
+  });
+  let touchStartX=0, touchStartY=0;
+  canvas.addEventListener('touchstart', e=>{ const t=e.touches[0]; touchStartX=t.clientX; touchStartY=t.clientY; start(); }, {passive:true});
+  canvas.addEventListener('touchend', e=>{
+    const t = e.changedTouches[0];
+    const dx = t.clientX-touchStartX, dy = t.clientY-touchStartY;
+    if(Math.abs(dx)<10 && Math.abs(dy)<10) return;
+    if(Math.abs(dx)>Math.abs(dy)) setDir(dx>0?1:-1, 0); else setDir(0, dy>0?1:-1);
+  }, {passive:true});
+  document.getElementById('snakeStartBtn').onclick = ()=> reset();
+
+  function roundedCell(x,y,r){
+    const px=x*cell, py=y*cell;
+    const rr = Math.min(r, cell/2);
+    ctx.beginPath();
+    ctx.moveTo(px+rr,py);
+    ctx.arcTo(px+cell,py,px+cell,py+cell,rr);
+    ctx.arcTo(px+cell,py+cell,px,py+cell,rr);
+    ctx.arcTo(px,py+cell,px,py,rr);
+    ctx.arcTo(px,py,px+cell,py,rr);
+    ctx.closePath(); ctx.fill();
+  }
+
+  function step(){
+    S.dir = S.nextDir;
+    const head = S.snake[0];
+    const nx = head.x + S.dir.x, ny = head.y + S.dir.y;
+    if(nx<0 || nx>=cols || ny<0 || ny>=rows || S.snake.some(s=>s.x===nx && s.y===ny)){ endGame(false); return; }
+    S.snake.unshift({x:nx,y:ny});
+    if(S.food && nx===S.food.x && ny===S.food.y){
+      document.getElementById('snakeLiveScore').textContent = S.snake.length-3;
+      placeFood();
+    }else{
+      S.snake.pop();
+    }
+  }
+
+  let prevTs = 0;
+  function loop(ts){
+    const visible = !document.getElementById('gamesView').classList.contains('hidden');
+    if(visible){
+      if(cell===0) resize();
+      if(S.running){
+        if(!prevTs) prevTs = ts;
+        S.acc += ts - prevTs;
+        const interval = 1000/S.speed;
+        if(S.acc > interval){ S.acc = 0; step(); }
+      }
+      prevTs = ts;
+      ctx.clearRect(0,0,W,H);
+      if(S.food){
+        ctx.beginPath();
+        ctx.arc(S.food.x*cell+cell/2, S.food.y*cell+cell/2, cell*0.32, 0, Math.PI*2);
+        ctx.fillStyle = '#f0c94a';
+        ctx.fill();
+      }
+      S.snake.forEach((seg,i)=>{
+        ctx.fillStyle = i===0 ? '#e3c785' : '#c9a961';
+        roundedCell(seg.x, seg.y, 6);
+      });
+    }
+    snakeRaf = requestAnimationFrame(loop);
+  }
+
+  document.getElementById('snakeBestScore').textContent = state.profile.snakeHighScore || 0;
+  if(snakeRaf) cancelAnimationFrame(snakeRaf);
+  snakeRaf = requestAnimationFrame(loop);
+}
 function initFlappyGame(){
   const canvas = document.getElementById('flappyCanvas');
   const ctx = canvas.getContext('2d');
@@ -2552,7 +2716,8 @@ function initFlappyGame(){
   flappyRaf = requestAnimationFrame(loop);
 }
 
-function openShareScoreModal(score){
+function openShareScoreModal(score, gameName){
+  gameName = gameName || 'Flappy Dot';
   const friends = state.friendsData || [];
   const root = document.getElementById('modalRoot');
   root.innerHTML = `
@@ -2575,17 +2740,18 @@ function openShareScoreModal(score){
     const btn = e.target.closest('.share-score-btn');
     if(!btn) return;
     btn.disabled = true; btn.textContent = 'Gönderiliyor…';
-    const ok = await shareScoreToFriend(score, btn.dataset.uid, btn.dataset.name);
+    const ok = await shareScoreToFriend(score, btn.dataset.uid, btn.dataset.name, gameName);
     if(ok){ btn.textContent = 'Gönderildi ✓'; } else { btn.disabled = false; btn.textContent = 'Gönder'; }
   });
 }
 
-async function shareScoreToFriend(score, friendUid, friendUsername){
+async function shareScoreToFriend(score, friendUid, friendUsername, gameName){
+  gameName = gameName || 'Flappy Dot';
   try{
     const cid = chatIdFor(state.uid, friendUid);
     const ref = db.collection('chats').doc(cid);
     const doc = await safeGetDoc(ref);
-    const preview = state.profile.hideMessagePreview ? 'Yeni mesaj' : '🏆 Oyun skoru gönderildi';
+    const preview = state.profile.hideMessagePreview ? 'Yeni mesaj' : ('🏆 ' + gameName + ' skoru gönderildi');
     if(!doc.exists){
       await ref.set({
         participants: [state.uid, friendUid],
@@ -2598,7 +2764,7 @@ async function shareScoreToFriend(score, friendUid, friendUsername){
     }
     await db.collection('chats').doc(cid).collection('messages').add({
       uid: state.uid, type:'shared_score',
-      sharedScore: { score },
+      sharedScore: { score, game: gameName },
       text: '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
     });
     await ref.update({
