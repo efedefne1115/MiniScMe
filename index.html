@@ -179,7 +179,7 @@
   .post-username{ font-weight:700; font-size:14.5px; }
   .post-time{ color:var(--text-faint); font-size:12px; }
   .post-edited{ color:var(--text-faint); font-size:11px; font-style:italic; }
-  .post-text{ font-size:14.8px; line-height:1.6; color:#e9e7e0; white-space:pre-wrap; word-break:break-word; margin-bottom:10px; }
+  .post-text{ font-size:14.8px; line-height:1.6; color:var(--text); white-space:pre-wrap; word-break:break-word; margin-bottom:10px; }
   .post-actions{ display:flex; gap:22px; align-items:center; }
   .post-action{
     display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-dim);
@@ -535,6 +535,7 @@
             <div class="avatar lg" id="otherProfileAvatar">•</div>
             <div>
               <div class="pname" id="otherProfileName">—</div>
+              <div class="pjoined" id="otherProfilePresence">—</div>
               <div class="profile-stats"><div class="profile-stat" id="otherProfileFriendStat"><b id="otherProfileFriendCount">0</b> arkadaş</div></div>
             </div>
           </div>
@@ -1347,32 +1348,45 @@ function openSharePostModal(postId){
   document.getElementById('shareFriendsList').addEventListener('click', async (e)=>{
     const btn = e.target.closest('.share-send-btn');
     if(!btn) return;
-    btn.disabled = true; btn.textContent = 'Gönderildi ✓';
-    await sharePostToFriend(post, btn.dataset.uid, btn.dataset.name);
+    btn.disabled = true; btn.textContent = 'Gönderiliyor…';
+    const ok = await sharePostToFriend(post, btn.dataset.uid, btn.dataset.name);
+    if(ok){
+      closeModal();
+      switchView('messages');
+      openChat(chatIdFor(state.uid, btn.dataset.uid), btn.dataset.uid, btn.dataset.name);
+    }else{
+      btn.disabled = false; btn.textContent = 'Gönder';
+    }
   });
 }
 
 async function sharePostToFriend(post, friendUid, friendUsername){
-  const cid = chatIdFor(state.uid, friendUid);
-  const ref = db.collection('chats').doc(cid);
-  const doc = await ref.get();
-  const preview = state.profile.hideMessagePreview ? 'Yeni mesaj' : '📎 Paylaşım gönderildi';
-  if(!doc.exists){
-    await ref.set({
-      participants: [state.uid, friendUid],
-      usernames: { [state.uid]: state.profile.username, [friendUid]: friendUsername },
-      status: 'accepted', requestedBy: state.uid,
-      lastMessage: preview, lastSenderUid: state.uid,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  try{
+    const cid = chatIdFor(state.uid, friendUid);
+    const ref = db.collection('chats').doc(cid);
+    const doc = await safeGetDoc(ref);
+    const preview = state.profile.hideMessagePreview ? 'Yeni mesaj' : '📎 Paylaşım gönderildi';
+    if(!doc.exists){
+      await ref.set({
+        participants: [state.uid, friendUid],
+        usernames: { [state.uid]: state.profile.username, [friendUid]: friendUsername },
+        status: 'accepted', requestedBy: state.uid,
+        lastMessage: preview, lastSenderUid: state.uid,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    await db.collection('chats').doc(cid).collection('messages').add({
+      uid: state.uid, type:'shared_post',
+      sharedPost: { author: post.username, text: post.text, likes: (post.likes||[]).length },
+      text: '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
     });
+    await ref.update({ lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    toast(friendUsername + ' kişisine gönderildi.');
+    return true;
+  }catch(e){
+    toast('Gönderilemedi, tekrar dene.');
+    return false;
   }
-  await db.collection('chats').doc(cid).collection('messages').add({
-    uid: state.uid, type:'shared_post',
-    sharedPost: { author: post.username, text: post.text, likes: (post.likes||[]).length },
-    text: '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
-  });
-  await ref.update({ lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-  toast(friendUsername + ' kişisine gönderildi.');
 }
 
 async function toggleLike(postId, currentlyLiked){
@@ -1598,11 +1612,11 @@ async function openOtherProfile(otherUid, otherUsername){
     if(otherUserData.showJoinedRooms !== false){
       db.collection('rooms').where('members','array-contains', otherUid).get().then(snap=>{
         const rooms = [];
-        snap.forEach(d=>{ const r=d.data(); if(r.isPublic) rooms.push(r); });
+        snap.forEach(d=>{ const r=d.data(); if(r.isPublic) rooms.push({ id:d.id, ...r }); });
         if(rooms.length>0){
           roomsSec.classList.remove('hidden');
           document.getElementById('otherProfileRoomsList').innerHTML = rooms.map(r=>`
-            <div class="room-row" style="cursor:default;"><div class="meta"><div class="rname">${esc(r.name)}</div><div class="rsub">${(r.members||[]).length}/${r.maxMembers} üye</div></div></div>`).join('');
+            <div class="room-row" data-room-id="${r.id}"><div class="meta"><div class="rname">${esc(r.name)}</div><div class="rsub">${(r.members||[]).length}/${r.maxMembers} üye</div></div><span class="room-badge pub">Açık</span></div>`).join('');
         }
       });
     }
@@ -1662,18 +1676,27 @@ async function openOtherProfile(otherUid, otherUsername){
 
   if(state.unsub.opOut) state.unsub.opOut();
   if(state.unsub.opIn) state.unsub.opIn();
-  state.unsub.opOut = db.collection('friendRequests').doc(state.uid+'_'+otherUid).onSnapshot(d=>{
-    state.otherProfileOutPending = d.exists && d.data().status === 'pending';
-    render();
-  });
-  state.unsub.opIn = db.collection('friendRequests').doc(otherUid+'_'+state.uid).onSnapshot(d=>{
-    state.otherProfileInPending = d.exists && d.data().status === 'pending';
-    render();
+  if(state.unsub.profilePresence) state.unsub.profilePresence();
+  state.unsub.opOut = db.collection('friendRequests').doc(state.uid+'_'+otherUid).onSnapshot(
+    d=>{ state.otherProfileOutPending = d.exists && d.data().status === 'pending'; render(); },
+    ()=>{ state.otherProfileOutPending = false; render(); }
+  );
+  state.unsub.opIn = db.collection('friendRequests').doc(otherUid+'_'+state.uid).onSnapshot(
+    d=>{ state.otherProfileInPending = d.exists && d.data().status === 'pending'; render(); },
+    ()=>{ state.otherProfileInPending = false; render(); }
+  );
+  state.unsub.profilePresence = db.collection('users').doc(otherUid).onSnapshot(d=>{
+    const data = d.data() || {};
+    const millis = data.lastActive && data.lastActive.toMillis ? data.lastActive.toMillis() : 0;
+    const online = millis>0 && (Date.now()-millis) < 90000;
+    const el = document.getElementById('otherProfilePresence');
+    if(el){ el.textContent = online ? 'çevrimiçi' : 'çevrimdışı'; el.style.color = online ? 'var(--success)' : 'var(--text-faint)'; }
   });
   render();
 }
 function closeOtherProfile(push){
   if(state.unsub.opOut){ state.unsub.opOut(); delete state.unsub.opOut; }
+  if(state.unsub.profilePresence){ state.unsub.profilePresence(); delete state.unsub.profilePresence; }
   if(state.unsub.opIn){ state.unsub.opIn(); delete state.unsub.opIn; }
   state.otherProfileUid = null;
   state.otherProfileRender = null;
@@ -1683,29 +1706,51 @@ function closeOtherProfile(push){
 }
 document.getElementById('backFromOtherProfileBtn').onclick = ()=> closeOtherProfile(false);
 
+document.getElementById('otherProfileRoomsList').addEventListener('click', async (e)=>{
+  const row = e.target.closest('.room-row');
+  if(!row) return;
+  const roomId = row.dataset.roomId;
+  const doc = await safeGetDoc(db.collection('rooms').doc(roomId));
+  if(!doc.exists){ toast('Oda bulunamadı.'); return; }
+  const r = doc.data();
+  const isMember = (r.members||[]).includes(state.uid);
+  switchView('rooms');
+  if(isMember) openRoom(roomId); else requestJoinRoom(roomId, r);
+});
+
+async function safeGetDoc(ref){
+  try{ return await ref.get(); }
+  catch(e){ return { exists:false, data:()=>({}) }; }
+}
+
 async function startChatWith(otherUid, otherUsername){
   if(otherUid === state.uid) return;
   const myBlocked = state.profile.blocked || [];
   if(myBlocked.includes(otherUid)){ toast('Bu kullanıcıyı engelledin.'); return; }
-  const otherDoc = await db.collection('users').doc(otherUid).get();
+  const otherDoc = await safeGetDoc(db.collection('users').doc(otherUid));
   const otherData = otherDoc.data() || {};
   if((otherData.blocked||[]).includes(state.uid)){ toast('Bu kullanıcıya mesaj gönderemezsin.'); return; }
 
   const cid = chatIdFor(state.uid, otherUid);
   const ref = db.collection('chats').doc(cid);
-  const doc = await ref.get();
-  if(!doc.exists){
-    await ref.set({
-      participants: [state.uid, otherUid],
-      usernames: { [state.uid]: state.profile.username, [otherUid]: otherUsername },
-      status: state.friendUids.has(otherUid) ? 'accepted' : 'pending',
-      requestedBy: state.uid,
-      lastMessage: '',
-      lastSenderUid: '',
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } else if(doc.data().status === 'rejected' && doc.data().requestedBy !== state.uid){
-    await ref.update({ status:'pending', requestedBy: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  const doc = await safeGetDoc(ref);
+  try{
+    if(!doc.exists){
+      await ref.set({
+        participants: [state.uid, otherUid],
+        usernames: { [state.uid]: state.profile.username, [otherUid]: otherUsername },
+        status: state.friendUids.has(otherUid) ? 'accepted' : 'pending',
+        requestedBy: state.uid,
+        lastMessage: '',
+        lastSenderUid: '',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else if(doc.data().status === 'rejected' && doc.data().requestedBy !== state.uid){
+      await ref.update({ status:'pending', requestedBy: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+  }catch(e){
+    toast('Sohbet açılamadı, Firestore kurallarını kontrol et.');
+    return;
   }
   closeOtherProfile(false);
   openChat(cid, otherUid, otherUsername);
