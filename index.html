@@ -159,6 +159,8 @@
     flex-shrink:0; letter-spacing:.5px;
   }
   .avatar.sm{ width:30px; height:30px; font-size:12px; }
+  .header-avatar-wrap{ position:relative; cursor:pointer; }
+  .avatar-dot{ position:absolute; top:-2px; right:-2px; width:10px; height:10px; border-radius:50%; background:var(--accent-2); border:2px solid var(--bg); }
   .avatar.lg{ width:64px; height:64px; font-size:24px; }
 
   /* ---------- composer / posts ---------- */
@@ -346,7 +348,8 @@
     flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none;
     color:var(--text-faint); padding:8px 2px 6px; border-radius:12px; position:relative; transition:color .2s;
   }
-  .nav-btn.active{ color:var(--accent-2); background:rgba(201,169,97,0.1); }
+  .nav-btn.active{ color:var(--accent-2); }
+  .nav-btn.active::after{ content:''; position:absolute; bottom:1px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--accent-2); }
   .nav-btn svg{ width:21px; height:21px; }
   .nav-btn span{ font-size:9.5px; font-weight:700; letter-spacing:.1px; }
   .nav-badge{
@@ -354,6 +357,8 @@
     background:var(--accent-2); color:#1a1406; font-size:9.5px; font-weight:800; display:none; align-items:center; justify-content:center;
   }
   .nav-badge.show{ display:flex; }
+  .nav-badge.dot{ min-width:9px; width:9px; height:9px; padding:0; top:4px; right:22%; box-shadow:0 0 0 2px var(--bg); }
+  .unread-badge{ font-size:11px; font-weight:800; color:var(--accent-2); }
 
   /* ---------- modal ---------- */
   .modal-overlay{
@@ -410,6 +415,20 @@
   .shared-post-card .spc-author{ font-size:11px; font-weight:800; opacity:.7; margin-bottom:3px; }
   .shared-post-card .spc-text{ font-size:13px; line-height:1.4; margin-bottom:5px; }
   .shared-post-card .spc-likes{ font-size:11px; opacity:.65; }
+
+  .game-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+  .game-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .game-title{ font-family:var(--font-display); font-size:17px; }
+  .game-best{ font-size:12px; color:var(--text-dim); }
+  .game-best b{ color:var(--accent-2); }
+  .game-canvas-wrap{ position:relative; width:100%; aspect-ratio:3/4; max-height:60vh; border-radius:16px; overflow:hidden; background:linear-gradient(180deg, rgba(201,169,97,0.08), rgba(201,169,97,0.02)); border:1px solid var(--border-soft); }
+  #flappyCanvas{ width:100%; height:100%; display:block; touch-action:none; }
+  .game-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,10,13,0.55); backdrop-filter:blur(2px); transition:opacity .2s; }
+  .game-overlay.hidden{ display:none; }
+  .game-overlay-inner{ text-align:center; }
+  .game-overlay-title{ font-family:var(--font-display); font-size:18px; margin-bottom:10px; color:#fff; }
+  .game-overlay-score{ font-size:13px; color:#e3c785; margin-bottom:14px; }
+  .game-score-live{ text-align:center; font-family:var(--font-display); font-size:26px; margin-top:12px; color:var(--accent-2); }
 
   .hidden{ display:none !important; }
   .form-error{ font-size:12px; color:var(--danger); margin-top:6px; min-height:14px; }
@@ -488,7 +507,10 @@
       <span class="brand-word" style="font-size:15px;">Mini<em>Sc</em>Me</span>
     </div>
     <div class="view-title" id="headerTitle">Ana Sayfa</div>
-    <div class="avatar sm" id="headerAvatar">•</div>
+    <div class="header-avatar-wrap" id="headerAvatarBtn">
+      <div class="avatar sm" id="headerAvatar">•</div>
+      <div class="avatar-dot hidden" id="headerAvatarDot"></div>
+    </div>
   </header>
 
   <main>
@@ -649,6 +671,27 @@
       <div id="friendsList"><div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div></div>
     </section>
 
+    <!-- GAMES -->
+    <section class="view hidden" id="gamesView">
+      <div class="game-card">
+        <div class="game-header">
+          <div class="game-title">Flappy Dot</div>
+          <div class="game-best">En iyi: <b id="gameBestScore">0</b></div>
+        </div>
+        <div class="game-canvas-wrap">
+          <canvas id="flappyCanvas"></canvas>
+          <div class="game-overlay" id="gameOverlay">
+            <div class="game-overlay-inner">
+              <div class="game-overlay-title" id="gameOverlayTitle">Başlamak için dokun</div>
+              <div class="game-overlay-score hidden" id="gameOverlayScore"></div>
+              <button class="btn btn-primary btn-sm" id="gameStartBtn">Başla</button>
+            </div>
+          </div>
+        </div>
+        <div class="game-score-live" id="gameLiveScore">0</div>
+      </div>
+    </section>
+
     <!-- SETTINGS -->
     <section class="view hidden" id="settingsView">
       <div class="settings-block">
@@ -750,10 +793,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         <span>Odalar</span>
       </button>
-      <button class="nav-btn" data-view="profile">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
-        <span>Profil</span>
-        <div class="nav-badge" id="profileNavBadge">0</div>
+      <button class="nav-btn" data-view="games">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="5"/><path d="M7 10v4M5 12h4"/><circle cx="15" cy="10.5" r="1"/><circle cx="17.5" cy="13" r="1"/></svg>
+        <span>Oyunlar</span>
       </button>
       <button class="nav-btn" data-view="settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -1074,7 +1116,8 @@ document.getElementById('signupForm').addEventListener('submit', async (e)=>{
       lightMode: false,
       theme: 'gold',
       blocked: [],
-      lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+      flappyHighScore: 0
     });
     await batch.commit();
     toast('Hesap oluşturuldu, hoş geldin!');
@@ -1199,9 +1242,13 @@ function teardownListeners(){
    NAVIGATION
 ========================================================= */
 document.querySelectorAll('.nav-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=> switchView(btn.dataset.view));
+  btn.addEventListener('click', ()=>{
+    switchView(btn.dataset.view);
+    if(btn.dataset.view === 'games' && !state.gameInited){ state.gameInited = true; initFlappyGame(); }
+  });
 });
-const VIEW_TITLES = { home:'Ana Sayfa', messages:'Mesajlar', rooms:'Odalar', profile:'Profil', settings:'Ayarlar' };
+document.getElementById('headerAvatarBtn').addEventListener('click', ()=> switchView('profile'));
+const VIEW_TITLES = { home:'Ana Sayfa', messages:'Mesajlar', rooms:'Odalar', profile:'Profil', games:'Oyunlar', settings:'Ayarlar' };
 function switchView(view, push){
   if(push !== false && view !== 'home') pushAwayIfNeeded();
   if(view === 'home') awayFromHome = false;
@@ -1372,6 +1419,7 @@ async function sharePostToFriend(post, friendUid, friendUsername){
         usernames: { [state.uid]: state.profile.username, [friendUid]: friendUsername },
         status: 'accepted', requestedBy: state.uid,
         lastMessage: preview, lastSenderUid: state.uid,
+        messageCount: 0, readCount: {},
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
@@ -1380,7 +1428,11 @@ async function sharePostToFriend(post, friendUid, friendUsername){
       sharedPost: { author: post.username, text: post.text, likes: (post.likes||[]).length },
       text: '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
     });
-    await ref.update({ lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await ref.update({
+      lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      messageCount: firebase.firestore.FieldValue.increment(1),
+      ['readCount.'+state.uid]: firebase.firestore.FieldValue.increment(1)
+    });
     toast(friendUsername + ' kişisine gönderildi.');
     return true;
   }catch(e){
@@ -1490,8 +1542,7 @@ function attachIncomingFriendRequests(){
         if(r.status === 'pending') state.incomingFriendReqs.push({ id:d.id, ...r });
       });
       const count = state.incomingFriendReqs.length;
-      document.getElementById('profileNavBadge').textContent = count;
-      document.getElementById('profileNavBadge').classList.toggle('show', count>0);
+      document.getElementById('headerAvatarDot').classList.toggle('hidden', count===0);
       const section = document.getElementById('notificationsSection');
       section.classList.toggle('hidden', count===0);
       document.getElementById('friendReqList').innerHTML = state.incomingFriendReqs.map(r=>`
@@ -1743,6 +1794,7 @@ async function startChatWith(otherUid, otherUsername){
         requestedBy: state.uid,
         lastMessage: '',
         lastSenderUid: '',
+        messageCount: 0, readCount: {},
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     } else if(doc.data().status === 'rejected' && doc.data().requestedBy !== state.uid){
@@ -1808,8 +1860,23 @@ function renderChatsAndRequests(){
   state.chatsBooted = true;
   accepted.sort((a,b)=> (b.updatedAt?.toMillis?.()||0) - (a.updatedAt?.toMillis?.()||0));
 
-  document.getElementById('msgNavBadge').textContent = requests.length;
-  document.getElementById('msgNavBadge').classList.toggle('show', requests.length>0);
+  const badge = document.getElementById('msgNavBadge');
+  let anyUnread = false;
+  accepted.forEach(c=>{
+    const unread = (c.messageCount||0) - ((c.readCount && c.readCount[state.uid]) || 0);
+    c._unread = unread > 0 ? unread : 0;
+    if(c._unread > 0) anyUnread = true;
+  });
+  if(requests.length>0){
+    badge.textContent = requests.length;
+    badge.classList.remove('dot');
+    badge.classList.add('show');
+  }else if(anyUnread){
+    badge.textContent = '';
+    badge.classList.add('dot','show');
+  }else{
+    badge.classList.remove('show','dot');
+  }
 
   const reqSection = document.getElementById('requestsSection');
   reqSection.classList.toggle('hidden', requests.length===0);
@@ -1829,12 +1896,19 @@ function renderChatsAndRequests(){
   if(accepted.length===0){
     list.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;padding:6px 4px;">Henüz sohbetin yok.</div>';
   }else{
-    list.innerHTML = accepted.map(c=>`
+    list.innerHTML = accepted.map(c=>{
+      const unreadLabel = c._unread>0 ? (c._unread>=4 ? '4+' : c._unread) : '';
+      return `
       <div class="chat-row" data-id="${c.id}" data-uid="${c.otherUid}" data-name="${esc(c.otherName)}">
         <div class="avatar">${esc(initials(c.otherName))}</div>
-        <div class="meta"><div class="uname">${esc(c.otherName)}</div><div class="lastmsg">${state.profile.hideMessagePreview ? 'Yeni mesaj' : esc(c.lastMessage||'Sohbete başla')}</div></div>
+        <div class="meta"><div class="uname">${esc(c.otherName)}</div><div class="lastmsg">${
+          c._unread>0
+            ? `<span class="unread-badge">Yeni mesaj ${unreadLabel}</span>`
+            : (state.profile.hideMessagePreview ? 'Yeni mesaj' : esc(c.lastMessage||'Sohbete başla'))
+        }</div></div>
         <div class="time">${timeAgo(c.updatedAt)}</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 }
 
@@ -1924,6 +1998,9 @@ function openChat(chatId, otherUid, otherName){
         if(last.uid !== state.uid) playPing();
       }
       state.threadMsgCount = snap.size;
+      if(state.activeChatId === chatId){
+        db.collection('chats').doc(chatId).update({ ['readCount.'+state.uid]: snap.size }).catch(()=>{});
+      }
     });
 }
 
@@ -1996,7 +2073,9 @@ async function sendThreadMessage(){
   try{
     await db.collection('chats').doc(state.activeChatId).collection('messages').add(payload);
     await db.collection('chats').doc(state.activeChatId).update({
-      lastMessage: text.slice(0,80), lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      lastMessage: text.slice(0,80), lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      messageCount: firebase.firestore.FieldValue.increment(1),
+      ['readCount.'+state.uid]: firebase.firestore.FieldValue.increment(1)
     });
   }catch(e){ toast('Gönderilemedi.'); }
   state.replyTo = null;
@@ -2349,6 +2428,124 @@ document.getElementById('roomLeaveOrDeleteBtn').onclick = ()=>{
 /* =========================================================
    SETTINGS
 ========================================================= */
+/* =========================================================
+   GAMES — Flappy Dot
+========================================================= */
+let flappyRaf = null;
+function initFlappyGame(){
+  const canvas = document.getElementById('flappyCanvas');
+  const ctx = canvas.getContext('2d');
+  let W=0, H=0;
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    W = rect.width; H = rect.height;
+    if(W===0 || H===0) return;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const G = { running:false, started:false, over:false, bird:{x:0,y:0,vy:0,r:14}, pipes:[], score:0,
+    gravity:0.5, flapV:-8, pipeGap:150, pipeW:52, speed:2.4, lastSpawn:0 };
+
+  function reset(){
+    G.bird.x = W*0.28; G.bird.y = H/2; G.bird.vy = 0;
+    G.pipes = []; G.score = 0; G.over = false; G.started = false; G.lastSpawn = 0;
+    document.getElementById('gameLiveScore').textContent = '0';
+  }
+  reset();
+
+  function spawnPipe(){
+    const margin = 40;
+    const gapY = margin + Math.random()*(H - margin*2 - G.pipeGap);
+    G.pipes.push({ x:W+20, gapY, passed:false });
+  }
+
+  function flap(){
+    if(G.over) return;
+    if(!G.started){ G.started = true; G.running = true; document.getElementById('gameOverlay').classList.add('hidden'); }
+    G.bird.vy = G.flapV;
+  }
+
+  function endGame(){
+    G.over = true; G.running = false;
+    const best = Math.max(state.profile.flappyHighScore||0, G.score);
+    if(G.score > (state.profile.flappyHighScore||0)){
+      state.profile.flappyHighScore = G.score;
+      db.collection('users').doc(state.uid).update({ flappyHighScore: G.score }).catch(()=>{});
+    }
+    document.getElementById('gameBestScore').textContent = best;
+    document.getElementById('gameOverlayTitle').textContent = 'Oyun Bitti';
+    const scoreEl = document.getElementById('gameOverlayScore');
+    scoreEl.textContent = 'Skor: ' + G.score;
+    scoreEl.classList.remove('hidden');
+    document.getElementById('gameStartBtn').textContent = 'Tekrar Oyna';
+    document.getElementById('gameOverlay').classList.remove('hidden');
+  }
+
+  function roundRect(x,y,w,h,r){
+    if(w<=0 || h<=0) return;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath(); ctx.fill();
+  }
+
+  function loop(ts){
+    const gamesVisible = !document.getElementById('gamesView').classList.contains('hidden');
+    if(gamesVisible){
+      if(W===0) resize();
+      if(G.running){
+        G.bird.vy += G.gravity;
+        G.bird.y += G.bird.vy;
+        if(!G.lastSpawn || ts - G.lastSpawn > 1500){ spawnPipe(); G.lastSpawn = ts; }
+        G.pipes.forEach(p=> p.x -= G.speed);
+        G.pipes = G.pipes.filter(p=> p.x > -G.pipeW-20);
+        G.pipes.forEach(p=>{
+          if(!p.passed && p.x + G.pipeW < G.bird.x){ p.passed = true; G.score++; document.getElementById('gameLiveScore').textContent = G.score; }
+        });
+        if(G.bird.y - G.bird.r < 0 || G.bird.y + G.bird.r > H) endGame();
+        G.pipes.forEach(p=>{
+          const withinX = G.bird.x + G.bird.r > p.x && G.bird.x - G.bird.r < p.x + G.pipeW;
+          if(withinX){
+            const inGap = G.bird.y - G.bird.r > p.gapY && G.bird.y + G.bird.r < p.gapY + G.pipeGap;
+            if(!inGap) endGame();
+          }
+        });
+      }
+      ctx.clearRect(0,0,W,H);
+      const pipeColor = getComputedStyle(document.documentElement).getPropertyValue('--surface-3').trim() || '#20202a';
+      ctx.fillStyle = pipeColor;
+      G.pipes.forEach(p=>{
+        roundRect(p.x, 0, G.pipeW, p.gapY, 10);
+        roundRect(p.x, p.gapY+G.pipeGap, G.pipeW, H-(p.gapY+G.pipeGap), 10);
+      });
+      const grad = ctx.createLinearGradient(G.bird.x-G.bird.r, G.bird.y-G.bird.r, G.bird.x+G.bird.r, G.bird.y+G.bird.r);
+      grad.addColorStop(0,'#e3c785'); grad.addColorStop(1,'#c9a961');
+      ctx.beginPath(); ctx.arc(G.bird.x, G.bird.y, G.bird.r, 0, Math.PI*2); ctx.fillStyle = grad; ctx.fill();
+      ctx.beginPath(); ctx.arc(G.bird.x+5, G.bird.y-4, 2.5, 0, Math.PI*2); ctx.fillStyle = '#1a1406'; ctx.fill();
+    }
+    flappyRaf = requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener('pointerdown', flap);
+  document.getElementById('gameStartBtn').onclick = ()=>{ reset(); flap(); };
+  document.addEventListener('keydown', e=>{
+    const visible = !document.getElementById('gamesView').classList.contains('hidden');
+    if(e.code === 'Space' && visible){ e.preventDefault(); flap(); }
+  });
+
+  document.getElementById('gameBestScore').textContent = state.profile.flappyHighScore || 0;
+  if(flappyRaf) cancelAnimationFrame(flappyRaf);
+  flappyRaf = requestAnimationFrame(loop);
+}
+
 function bindSwitch(elId, field){
   document.getElementById(elId).onclick = async function(){
     const newVal = !this.classList.contains('on');
