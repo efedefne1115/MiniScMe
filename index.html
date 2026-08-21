@@ -54,7 +54,14 @@
     min-height:100%;
     overflow-x:hidden;
   }
-  body.compact{ --gap-unit:9px; }
+  body.light{
+    --bg:#f7f5f0; --surface:#ffffff; --surface-2:#f0eee6; --surface-3:#e7e3d8;
+    --border:#ddd7c8; --border-soft:#e8e3d6; --text:#221f1a; --text-dim:#726c5c; --text-faint:#a29a86;
+  }
+  body.light .app-header{ background:rgba(247,245,240,0.88); }
+  body.light .bottom-nav{ background:rgba(247,245,240,0.92); }
+  body.light .avatar{ color:#fff; }
+  body.light .btn-primary{ color:#fff; }
   ::selection{ background:rgba(201,169,97,0.35); color:#fff; }
   button{font-family:inherit; cursor:pointer;}
   input,textarea{font-family:inherit;}
@@ -339,7 +346,7 @@
     flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none;
     color:var(--text-faint); padding:8px 2px 6px; border-radius:12px; position:relative; transition:color .2s;
   }
-  .nav-btn.active{ color:var(--accent-2); }
+  .nav-btn.active{ color:var(--accent-2); background:rgba(201,169,97,0.1); }
   .nav-btn svg{ width:21px; height:21px; }
   .nav-btn span{ font-size:9.5px; font-weight:700; letter-spacing:.1px; }
   .nav-badge{
@@ -386,6 +393,23 @@
     font-size:13px; font-weight:600; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:all .3s ease; max-width:88vw; text-align:center;
   }
   #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  #topNotifBanner{
+    position:fixed; top:10px; left:50%; transform:translateX(-50%) translateY(-140%); z-index:600;
+    background:var(--surface-3); border:1px solid var(--border); border-radius:14px; padding:11px 14px;
+    display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); max-width:92vw; width:360px;
+    transition:transform .35s cubic-bezier(.19,1,.22,1); cursor:pointer;
+  }
+  #topNotifBanner.show{ transform:translateX(-50%) translateY(0); }
+  #topNotifBanner .meta{ flex:1; min-width:0; }
+  #topNotifBanner b{ font-size:13px; }
+  #topNotifBanner #topNotifText{ font-size:12.5px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .shared-post-card{ border:1px solid rgba(0,0,0,0.15); border-radius:12px; padding:10px 12px; margin-bottom:6px; background:rgba(0,0,0,0.05); }
+  .msg-bubble.theirs .shared-post-card{ border-color:var(--border); background:var(--surface-3); }
+  .shared-post-card .spc-author{ font-size:11px; font-weight:800; opacity:.7; margin-bottom:3px; }
+  .shared-post-card .spc-text{ font-size:13px; line-height:1.4; margin-bottom:5px; }
+  .shared-post-card .spc-likes{ font-size:11px; opacity:.65; }
 
   .hidden{ display:none !important; }
   .form-error{ font-size:12px; color:var(--danger); margin-top:6px; min-height:14px; }
@@ -511,10 +535,22 @@
             <div class="avatar lg" id="otherProfileAvatar">•</div>
             <div>
               <div class="pname" id="otherProfileName">—</div>
-              <div class="profile-stats"><div class="profile-stat"><b id="otherProfileFriendCount">0</b> arkadaş</div></div>
+              <div class="profile-stats"><div class="profile-stat" id="otherProfileFriendStat"><b id="otherProfileFriendCount">0</b> arkadaş</div></div>
             </div>
           </div>
           <div class="profile-actions" id="otherProfileActions"></div>
+          <div id="otherProfileFriendsSection" class="hidden">
+            <div class="section-label">Arkadaşları</div>
+            <div id="otherProfileFriendsList"></div>
+          </div>
+          <div id="otherProfileRoomsSection" class="hidden">
+            <div class="section-label">Katıldığı Odalar</div>
+            <div id="otherProfileRoomsList"></div>
+          </div>
+          <div id="otherProfilePostsSection" class="hidden">
+            <div class="section-label">Paylaşımları</div>
+            <div id="otherProfilePostsList"></div>
+          </div>
         </div>
       </div>
 
@@ -526,7 +562,7 @@
           <div class="avatar sm" id="threadAvatar">•</div>
           <div class="meta">
             <div class="uname" id="threadUsername">—</div>
-            <div class="usub">çevrimiçi</div>
+            <div class="usub" id="threadPresence">çevrimdışı</div>
           </div>
           <button class="icon-btn" id="blockUserBtn" title="Engelle">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg>
@@ -635,6 +671,18 @@
           <div><div class="label">Profilimi aramada gizle</div><div class="desc">Arkadaşın olmayanlar seni kullanıcı aramasında bulamaz.</div></div>
           <div class="switch" id="hideFromSearchSwitch"></div>
         </div>
+        <div class="toggle-row">
+          <div><div class="label">Arkadaş listemi herkese açık göster</div><div class="desc">Açıksa başkaları arkadaş sayına dokununca listeni görebilir. Kapalıyken sadece sayı görünür.</div></div>
+          <div class="switch" id="showFriendsSwitch"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="label">Katıldığım odaları profilimde göster</div><div class="desc">Herkese açık odalardaki üyeliklerin profilini ziyaret edenlere görünür.</div></div>
+          <div class="switch on" id="showRoomsSwitch"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="label">Paylaşımlarımı profilimde göster</div><div class="desc">Ana sayfaya yazdıkların profilini ziyaret edenlere görünür.</div></div>
+          <div class="switch on" id="showPostsSwitch"></div>
+        </div>
       </div>
 
       <div class="settings-block">
@@ -661,8 +709,8 @@
           <div class="swatch" data-theme="violet" style="background:#a389c9"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Kompakt mod</div><div class="desc">Listelerde daha az boşlukla daha fazla içerik göster.</div></div>
-          <div class="switch" id="compactSwitch"></div>
+          <div><div class="label">Açık tema</div><div class="desc">Karanlık yerine aydınlık bir görünüm kullan.</div></div>
+          <div class="switch" id="lightModeSwitch"></div>
         </div>
       </div>
 
@@ -716,6 +764,10 @@
 
 <div id="modalRoot"></div>
 <div id="toast"></div>
+<div id="topNotifBanner" class="hidden">
+  <div class="avatar sm" id="topNotifAvatar">•</div>
+  <div class="meta"><b id="topNotifName"></b><div id="topNotifText"></div></div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -763,6 +815,10 @@ const state = {
   friendUids: new Set(),
   lastChatDocs: [],
   incomingFriendReqs: [],
+  chatLastSeen: {},
+  chatsBooted: false,
+  friendsData: [],
+  postsCache: {},
   threadMsgCount: 0,
   unsub: {}
 };
@@ -1011,9 +1067,13 @@ document.getElementById('signupForm').addEventListener('submit', async (e)=>{
       hideProfileFromSearch: false,
       hideMessagePreview: false,
       soundEnabled: true,
-      compactMode: false,
+      showFriendsList: false,
+      showJoinedRooms: true,
+      showMyPosts: true,
+      lightMode: false,
       theme: 'gold',
-      blocked: []
+      blocked: [],
+      lastActive: firebase.firestore.FieldValue.serverTimestamp()
     });
     await batch.commit();
     toast('Hesap oluşturuldu, hoş geldin!');
@@ -1106,8 +1166,11 @@ function enterApp(){
   document.getElementById('hideFromSearchSwitch').classList.toggle('on', state.profile.hideProfileFromSearch === true);
   document.getElementById('hidePreviewSwitch').classList.toggle('on', state.profile.hideMessagePreview === true);
   document.getElementById('soundSwitch').classList.toggle('on', state.profile.soundEnabled !== false);
-  document.getElementById('compactSwitch').classList.toggle('on', state.profile.compactMode === true);
-  document.body.classList.toggle('compact', state.profile.compactMode === true);
+  document.getElementById('showFriendsSwitch').classList.toggle('on', state.profile.showFriendsList === true);
+  document.getElementById('showRoomsSwitch').classList.toggle('on', state.profile.showJoinedRooms !== false);
+  document.getElementById('showPostsSwitch').classList.toggle('on', state.profile.showMyPosts !== false);
+  document.getElementById('lightModeSwitch').classList.toggle('on', state.profile.lightMode === true);
+  document.body.classList.toggle('light', state.profile.lightMode === true);
   renderBlockedList();
   switchView('home', false);
   attachHomeFeed();
@@ -1115,10 +1178,20 @@ function enterApp(){
   attachMyRooms();
   attachMyFriends();
   attachIncomingFriendRequests();
+  startPresenceHeartbeat();
+}
+
+function startPresenceHeartbeat(){
+  const beat = ()=>{ if(state.uid) db.collection('users').doc(state.uid).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{}); };
+  beat();
+  if(state.heartbeatInterval) clearInterval(state.heartbeatInterval);
+  state.heartbeatInterval = setInterval(beat, 60000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) beat(); });
 }
 
 function teardownListeners(){
   Object.keys(state.unsub).forEach(k=>{ try{ state.unsub[k](); }catch(e){} delete state.unsub[k]; });
+  if(state.heartbeatInterval){ clearInterval(state.heartbeatInterval); state.heartbeatInterval = null; }
 }
 
 /* =========================================================
@@ -1132,6 +1205,7 @@ function switchView(view, push){
   if(push !== false && view !== 'home') pushAwayIfNeeded();
   if(view === 'home') awayFromHome = false;
   state.currentView = view;
+  document.body.classList.remove('chat-open');
   document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
   document.getElementById(view+'View').classList.remove('hidden');
   document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.view===view));
@@ -1181,6 +1255,7 @@ function attachHomeFeed(){
       list.innerHTML = '';
       snap.forEach(doc=>{
         const p = doc.data();
+        state.postsCache[doc.id] = p;
         const liked = (p.likes||[]).includes(state.uid);
         const mine = p.uid === state.uid;
         const el = document.createElement('div');
@@ -1204,6 +1279,9 @@ function attachHomeFeed(){
                 <button class="post-action comment-btn" data-id="${doc.id}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
                   <span>${p.commentCount||0}</span>
+                </button>
+                <button class="post-action share-btn" data-id="${doc.id}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
                 </button>
               </div>
             </div>
@@ -1239,9 +1317,63 @@ document.getElementById('postsList').addEventListener('click', (e)=>{
   )) return;
   const likeBtn = e.target.closest('.like-btn');
   const commentBtn = e.target.closest('.comment-btn');
+  const shareBtn = e.target.closest('.share-btn');
   if(likeBtn) toggleLike(likeBtn.dataset.id, likeBtn.classList.contains('liked'));
   if(commentBtn) openComments(commentBtn.dataset.id);
+  if(shareBtn) openSharePostModal(shareBtn.dataset.id);
 });
+
+function openSharePostModal(postId){
+  const post = state.postsCache[postId];
+  if(!post) return;
+  const friends = state.friendsData || [];
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="shareOverlay">
+      <div class="modal-card">
+        <div class="modal-title">Paylaş</div>
+        <div id="shareFriendsList">${friends.length===0
+          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div>'
+          : friends.map(f=>`
+            <div class="friend-row">
+              <div class="avatar sm">${esc(initials(f.username))}</div>
+              <div class="meta">${esc(f.username)}</div>
+              <button class="btn btn-primary btn-sm share-send-btn" data-uid="${f.uid}" data-name="${esc(f.username)}">Gönder</button>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('shareOverlay').onclick = (e)=>{ if(e.target.id==='shareOverlay') closeModal(); };
+  document.getElementById('shareFriendsList').addEventListener('click', async (e)=>{
+    const btn = e.target.closest('.share-send-btn');
+    if(!btn) return;
+    btn.disabled = true; btn.textContent = 'Gönderildi ✓';
+    await sharePostToFriend(post, btn.dataset.uid, btn.dataset.name);
+  });
+}
+
+async function sharePostToFriend(post, friendUid, friendUsername){
+  const cid = chatIdFor(state.uid, friendUid);
+  const ref = db.collection('chats').doc(cid);
+  const doc = await ref.get();
+  const preview = state.profile.hideMessagePreview ? 'Yeni mesaj' : '📎 Paylaşım gönderildi';
+  if(!doc.exists){
+    await ref.set({
+      participants: [state.uid, friendUid],
+      usernames: { [state.uid]: state.profile.username, [friendUid]: friendUsername },
+      status: 'accepted', requestedBy: state.uid,
+      lastMessage: preview, lastSenderUid: state.uid,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+  await db.collection('chats').doc(cid).collection('messages').add({
+    uid: state.uid, type:'shared_post',
+    sharedPost: { author: post.username, text: post.text, likes: (post.likes||[]).length },
+    text: '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
+  });
+  await ref.update({ lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  toast(friendUsername + ' kişisine gönderildi.');
+}
 
 async function toggleLike(postId, currentlyLiked){
   const ref = db.collection('posts').doc(postId);
@@ -1308,6 +1440,7 @@ function attachMyFriends(){
         state.friendUids.add(otherUid);
         list.push({ uid: otherUid, username: (f.usernames && f.usernames[otherUid]) || 'kullanıcı' });
       });
+      state.friendsData = list;
       document.getElementById('myFriendCount').textContent = list.length;
       const box = document.getElementById('friendsList');
       if(list.length === 0){
@@ -1321,6 +1454,7 @@ function attachMyFriends(){
           </div>`).join('');
       }
       renderChatsAndRequests();
+      if(state.otherProfileUid && state.otherProfileRender) state.otherProfileRender();
     });
 }
 document.getElementById('friendsList').addEventListener('click', (e)=>{
@@ -1429,13 +1563,62 @@ async function openOtherProfile(otherUid, otherUsername){
   document.getElementById('otherProfileAvatar').textContent = initials(otherUsername);
   document.getElementById('otherProfileName').textContent = otherUsername;
   document.getElementById('otherProfileActions').innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;">Yükleniyor…</div>';
+  document.getElementById('otherProfileFriendsSection').classList.add('hidden');
+  document.getElementById('otherProfileRoomsSection').classList.add('hidden');
+  document.getElementById('otherProfilePostsSection').classList.add('hidden');
   pushAwayIfNeeded();
 
+  let otherUserData = {};
+  db.collection('users').doc(otherUid).get().then(d=>{ otherUserData = d.data() || {}; renderExtras(); });
+
   db.collection('friendships').where('users','array-contains', otherUid).get().then(snap=>{
-    let count = 0;
-    snap.forEach(d=>{ if((d.data().users||[]).includes(otherUid)) count++; });
-    document.getElementById('otherProfileFriendCount').textContent = count;
+    const arr = [];
+    snap.forEach(d=>{
+      const f = d.data();
+      const ou = (f.users||[]).find(u=>u!==otherUid);
+      if(ou) arr.push({ uid: ou, username: (f.usernames && f.usernames[ou]) || 'kullanıcı' });
+    });
+    document.getElementById('otherProfileFriendCount').textContent = arr.length;
+    document.getElementById('otherProfileFriendStat').onclick = ()=>{
+      if(!otherUserData.showFriendsList){ toast('Bu kullanıcı arkadaş listesini gizli tutuyor.'); return; }
+      const sec = document.getElementById('otherProfileFriendsSection');
+      const wasHidden = sec.classList.contains('hidden');
+      sec.classList.toggle('hidden', !wasHidden);
+      if(wasHidden){
+        document.getElementById('otherProfileFriendsList').innerHTML = arr.length===0
+          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">Arkadaşı yok.</div>'
+          : arr.map(f=>`<div class="friend-row"><div class="avatar sm">${esc(initials(f.username))}</div><div class="meta">${esc(f.username)}</div></div>`).join('');
+      }
+    };
   });
+
+  function renderExtras(){
+    const roomsSec = document.getElementById('otherProfileRoomsSection');
+    const postsSec = document.getElementById('otherProfilePostsSection');
+    if(otherUserData.showJoinedRooms !== false){
+      db.collection('rooms').where('members','array-contains', otherUid).get().then(snap=>{
+        const rooms = [];
+        snap.forEach(d=>{ const r=d.data(); if(r.isPublic) rooms.push(r); });
+        if(rooms.length>0){
+          roomsSec.classList.remove('hidden');
+          document.getElementById('otherProfileRoomsList').innerHTML = rooms.map(r=>`
+            <div class="room-row" style="cursor:default;"><div class="meta"><div class="rname">${esc(r.name)}</div><div class="rsub">${(r.members||[]).length}/${r.maxMembers} üye</div></div></div>`).join('');
+        }
+      });
+    }
+    if(otherUserData.showMyPosts !== false){
+      db.collection('posts').where('uid','==', otherUid).get().then(snap=>{
+        const posts = [];
+        snap.forEach(d=> posts.push(d.data()));
+        posts.sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+        if(posts.length>0){
+          postsSec.classList.remove('hidden');
+          document.getElementById('otherProfilePostsList').innerHTML = posts.slice(0,10).map(p=>`
+            <div class="post" style="padding:10px 2px;"><div class="post-text" style="margin-bottom:4px;font-size:13.5px;">${esc(p.text)}</div><div class="post-time">♥ ${(p.likes||[]).length} · ${timeAgo(p.createdAt)}</div></div>`).join('');
+        }
+      });
+    }
+  }
 
   function render(){
     const isFriend = state.friendUids.has(otherUid);
@@ -1444,6 +1627,7 @@ async function openOtherProfile(otherUid, otherUsername){
       box.innerHTML = `
         <button class="btn btn-primary" id="opMsgBtn">Mesaj Gönder</button>
         <button class="btn btn-ghost" id="opUnfriendBtn">Arkadaşlıktan Çıkar</button>`;
+      document.getElementById('opMsgBtn').onclick = ()=> startChatWith(otherUid, otherUsername);
       document.getElementById('opUnfriendBtn').onclick = ()=>{
         showConfirm('Arkadaşlıktan Çıkar', otherUsername + ' arkadaş listenden kaldırılacak.', 'Çıkar', async ()=>{
           await db.collection('friendships').doc(pairId(state.uid, otherUid)).delete();
@@ -1453,7 +1637,7 @@ async function openOtherProfile(otherUid, otherUsername){
       box.innerHTML = `
         <button class="btn btn-ghost" disabled>İstek Gönderildi</button>
         <button class="btn btn-ghost" id="opMsgBtn2">Mesaj Gönder</button>`;
-      const b2 = document.getElementById('opMsgBtn2'); if(b2) b2.onclick = ()=> startChatWith(otherUid, otherUsername);
+      document.getElementById('opMsgBtn2').onclick = ()=> startChatWith(otherUid, otherUsername);
     }else if(state.otherProfileInPending){
       box.innerHTML = `
         <button class="btn btn-primary" id="opAcceptBtn">Arkadaşlık İsteğini Kabul Et</button>
@@ -1465,15 +1649,16 @@ async function openOtherProfile(otherUid, otherUsername){
         });
         await db.collection('friendRequests').doc(otherUid+'_'+state.uid).delete();
       };
-      const b3 = document.getElementById('opMsgBtn3'); if(b3) b3.onclick = ()=> startChatWith(otherUid, otherUsername);
+      document.getElementById('opMsgBtn3').onclick = ()=> startChatWith(otherUid, otherUsername);
     }else{
       box.innerHTML = `
         <button class="btn btn-primary" id="opAddBtn">Arkadaş Ekle</button>
         <button class="btn btn-ghost" id="opMsgBtn4">Mesaj Gönder</button>`;
       document.getElementById('opAddBtn').onclick = ()=> sendFriendRequest(otherUid, otherUsername);
-      const b4 = document.getElementById('opMsgBtn4'); if(b4) b4.onclick = ()=> startChatWith(otherUid, otherUsername);
+      document.getElementById('opMsgBtn4').onclick = ()=> startChatWith(otherUid, otherUsername);
     }
   }
+  state.otherProfileRender = render;
 
   if(state.unsub.opOut) state.unsub.opOut();
   if(state.unsub.opIn) state.unsub.opIn();
@@ -1491,11 +1676,12 @@ function closeOtherProfile(push){
   if(state.unsub.opOut){ state.unsub.opOut(); delete state.unsub.opOut; }
   if(state.unsub.opIn){ state.unsub.opIn(); delete state.unsub.opIn; }
   state.otherProfileUid = null;
+  state.otherProfileRender = null;
   document.getElementById('otherProfileView').classList.add('hidden');
   if(!document.getElementById('chatThreadView').classList.contains('hidden')) return;
   document.getElementById('chatListView').classList.remove('hidden');
 }
-document.getElementById('backFromOtherProfileBtn').onclick = closeOtherProfile;
+document.getElementById('backFromOtherProfileBtn').onclick = ()=> closeOtherProfile(false);
 
 async function startChatWith(otherUid, otherUsername){
   if(otherUid === state.uid) return;
@@ -1512,19 +1698,17 @@ async function startChatWith(otherUid, otherUsername){
     await ref.set({
       participants: [state.uid, otherUid],
       usernames: { [state.uid]: state.profile.username, [otherUid]: otherUsername },
-      status: 'pending',
+      status: state.friendUids.has(otherUid) ? 'accepted' : 'pending',
       requestedBy: state.uid,
       lastMessage: '',
+      lastSenderUid: '',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } else if(doc.data().status === 'rejected' && doc.data().requestedBy !== state.uid){
     await ref.update({ status:'pending', requestedBy: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
-  toast('Mesaj gönderildi.');
   closeOtherProfile(false);
-  if(doc.exists && doc.data().status === 'accepted'){
-    openChat(cid, otherUid, otherUsername);
-  }
+  openChat(cid, otherUid, otherUsername);
 }
 
 function attachMyChats(){
@@ -1534,6 +1718,22 @@ function attachMyChats(){
       state.lastChatDocs = snap.docs;
       renderChatsAndRequests();
     });
+}
+
+function showTopNotif(name, text, chatId, otherUid){
+  const banner = document.getElementById('topNotifBanner');
+  document.getElementById('topNotifAvatar').textContent = initials(name);
+  document.getElementById('topNotifName').textContent = name;
+  document.getElementById('topNotifText').textContent = text || 'Yeni mesaj';
+  banner.classList.add('show');
+  playPing();
+  clearTimeout(state.topNotifTimer);
+  state.topNotifTimer = setTimeout(()=> banner.classList.remove('show'), 3800);
+  banner.onclick = ()=>{
+    banner.classList.remove('show');
+    switchView('messages');
+    openChat(chatId, otherUid, name);
+  };
 }
 
 function renderChatsAndRequests(){
@@ -1552,8 +1752,15 @@ function renderChatsAndRequests(){
       }
     } else if(c.status === 'accepted'){
       accepted.push(item);
+      const t = c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : 0;
+      const prev = state.chatLastSeen[doc.id];
+      if(state.chatsBooted && prev !== undefined && t > prev && c.lastSenderUid && c.lastSenderUid !== state.uid && doc.id !== state.activeChatId){
+        showTopNotif(otherName, c.lastMessage, doc.id, otherUid);
+      }
+      state.chatLastSeen[doc.id] = t;
     }
   });
+  state.chatsBooted = true;
   accepted.sort((a,b)=> (b.updatedAt?.toMillis?.()||0) - (a.updatedAt?.toMillis?.()||0));
 
   document.getElementById('msgNavBadge').textContent = requests.length;
@@ -1617,6 +1824,23 @@ function openChat(chatId, otherUid, otherName){
   pushAwayIfNeeded();
   state.threadMsgCount = -1;
 
+  if(state.unsub.presence) state.unsub.presence();
+  if(state.presenceTimer) clearInterval(state.presenceTimer);
+  let lastActiveMillis = 0;
+  function updatePresenceLabel(){
+    const el = document.getElementById('threadPresence');
+    if(!el) return;
+    const online = lastActiveMillis > 0 && (Date.now() - lastActiveMillis) < 90000;
+    el.textContent = online ? 'çevrimiçi' : 'çevrimdışı';
+    el.style.color = online ? 'var(--success)' : 'var(--text-faint)';
+  }
+  state.unsub.presence = db.collection('users').doc(otherUid).onSnapshot(d=>{
+    const data = d.data() || {};
+    lastActiveMillis = data.lastActive && data.lastActive.toMillis ? data.lastActive.toMillis() : 0;
+    updatePresenceLabel();
+  });
+  state.presenceTimer = setInterval(updatePresenceLabel, 20000);
+
   if(state.unsub.thread) { state.unsub.thread(); }
   state.unsub.thread = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc').limit(300)
     .onSnapshot(snap=>{
@@ -1629,7 +1853,11 @@ function openChat(chatId, otherUid, otherName){
         b.className = 'msg-bubble ' + (mine?'mine':'theirs');
         let html = '';
         if(m.replyTo) html += `<div class="reply-quote"><b>${esc(m.replyTo.authorName)}</b>: ${esc((m.replyTo.text||'').slice(0,60))}</div>`;
-        html += esc(m.text) + (m.edited?'<span class="msg-edited-tag">düzenlendi</span>':'');
+        if(m.type === 'shared_post' && m.sharedPost){
+          html += `<div class="shared-post-card"><div class="spc-author">${esc(m.sharedPost.author)}</div><div class="spc-text">${esc(m.sharedPost.text)}</div><div class="spc-likes">♥ ${m.sharedPost.likes||0}</div></div>`;
+        } else {
+          html += esc(m.text) + (m.edited?'<span class="msg-edited-tag">düzenlendi</span>':'');
+        }
         b.innerHTML = html;
         if(!mine) attachSwipeToReply(b, { id:d.id, text:m.text, authorName: otherName });
         if(mine){
@@ -1702,6 +1930,8 @@ document.getElementById('cancelReplyBtn').onclick = ()=>{
 
 function closeThread(push){
   if(state.unsub.thread){ state.unsub.thread(); delete state.unsub.thread; }
+  if(state.unsub.presence){ state.unsub.presence(); delete state.unsub.presence; }
+  if(state.presenceTimer){ clearInterval(state.presenceTimer); state.presenceTimer = null; }
   state.activeChatId = null; state.activeChatOther = null; state.replyTo = null;
   document.getElementById('chatThreadView').classList.add('hidden');
   document.body.classList.remove('chat-open');
@@ -1709,7 +1939,7 @@ function closeThread(push){
     document.getElementById('chatListView').classList.remove('hidden');
   }
 }
-document.getElementById('backFromChatBtn').onclick = ()=> closeThread(false);
+document.getElementById('backFromChatBtn').onclick = ()=> { document.body.classList.remove('chat-open'); closeThread(false); };
 
 async function sendThreadMessage(){
   const input = document.getElementById('threadMsgInput');
@@ -1721,7 +1951,7 @@ async function sendThreadMessage(){
   try{
     await db.collection('chats').doc(state.activeChatId).collection('messages').add(payload);
     await db.collection('chats').doc(state.activeChatId).update({
-      lastMessage: text.slice(0,80), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      lastMessage: text.slice(0,80), lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   }catch(e){ toast('Gönderilemedi.'); }
   state.replyTo = null;
@@ -1906,7 +2136,7 @@ async function openRoom(roomId){
     if(!d.exists){ toast('Oda silindi.'); closeRoom(false); return; }
     state.activeRoom = { id: roomId, ...d.data() };
     refreshRoomHeader(state.activeRoom);
-  });
+  }, ()=>{ toast('Oda yüklenirken bir sorun oluştu.'); closeRoom(false); });
 
   if(state.unsub.roomMsgs) state.unsub.roomMsgs();
   state.unsub.roomMsgs = db.collection('rooms').doc(roomId).collection('messages').orderBy('createdAt','asc').limit(300)
@@ -1969,7 +2199,7 @@ function closeRoom(push){
   document.body.classList.remove('chat-open');
   document.getElementById('roomsListView').classList.remove('hidden');
 }
-document.getElementById('backFromRoomBtn').onclick = ()=> closeRoom(false);
+document.getElementById('backFromRoomBtn').onclick = ()=> { document.body.classList.remove('chat-open'); closeRoom(false); };
 
 async function sendRoomMessage(){
   const input = document.getElementById('roomMsgInput');
@@ -2080,7 +2310,7 @@ function bindSwitch(elId, field){
     this.classList.toggle('on', newVal);
     state.profile[field] = newVal;
     await db.collection('users').doc(state.uid).update({ [field]: newVal });
-    if(field === 'compactMode') document.body.classList.toggle('compact', newVal);
+    if(field === 'lightMode') document.body.classList.toggle('light', newVal);
     if(field === 'hideMessagePreview' || field === 'allowNonFriendMessages') renderChatsAndRequests();
   };
 }
@@ -2088,7 +2318,10 @@ bindSwitch('allowNonFriendSwitch', 'allowNonFriendMessages');
 bindSwitch('hideFromSearchSwitch', 'hideProfileFromSearch');
 bindSwitch('hidePreviewSwitch', 'hideMessagePreview');
 bindSwitch('soundSwitch', 'soundEnabled');
-bindSwitch('compactSwitch', 'compactMode');
+bindSwitch('showFriendsSwitch', 'showFriendsList');
+bindSwitch('showRoomsSwitch', 'showJoinedRooms');
+bindSwitch('showPostsSwitch', 'showMyPosts');
+bindSwitch('lightModeSwitch', 'lightMode');
 
 document.getElementById('themeSwatches').addEventListener('click', async (e)=>{
   const sw = e.target.closest('.swatch');
