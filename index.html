@@ -54,6 +54,7 @@
     min-height:100%;
     overflow-x:hidden;
   }
+  body.large-text{ font-size:107%; }
   body.light{
     --bg:#f7f5f0; --surface:#ffffff; --surface-2:#f0eee6; --surface-3:#e7e3d8;
     --border:#ddd7c8; --border-soft:#e8e3d6; --text:#221f1a; --text-dim:#726c5c; --text-faint:#a29a86;
@@ -271,6 +272,7 @@
   .msg-bubble.mine .dots-btn{ color:rgba(26,20,6,0.55); }
   .msg-bubble.mine .dots-btn:hover{ color:#1a1406; background:rgba(26,20,6,0.1); }
   .msg-edited-tag{ font-size:10px; opacity:.6; font-style:italic; margin-left:6px; }
+  .seen-label{ font-size:10.5px; color:var(--text-faint); text-align:right; margin:-4px 4px 6px; }
   .reply-quote{ border-left:2.5px solid rgba(0,0,0,0.25); padding:4px 8px; margin-bottom:6px; font-size:12px; opacity:.75; border-radius:4px; background:rgba(0,0,0,0.06); }
   .msg-bubble.theirs .reply-quote{ border-left-color:var(--accent-dim); background:rgba(255,255,255,0.03); }
   .reply-preview{ display:flex; align-items:center; gap:10px; padding:9px 16px; background:var(--surface-2); border-top:1px solid var(--border-soft); flex-shrink:0; }
@@ -310,6 +312,7 @@
   .profile-stat{ font-size:12.5px; color:var(--text-dim); }
   .profile-stat b{ color:var(--text); font-size:14px; }
   .profile-actions{ display:flex; gap:10px; margin-bottom:24px; }
+  .profile-bio{ font-size:13.5px; color:var(--text-dim); line-height:1.6; margin-bottom:14px; max-width:480px; white-space:pre-wrap; }
   .friend-row{ display:flex; align-items:center; gap:12px; padding:10px 6px; }
   .friend-row .meta{ flex:1; font-weight:700; font-size:13.5px; }
 
@@ -422,6 +425,8 @@
   .game-best{ font-size:12px; color:var(--text-dim); }
   .game-best b{ color:var(--accent-2); }
   .game-canvas-wrap{ position:relative; width:100%; aspect-ratio:3/4; max-height:60vh; border-radius:16px; overflow:hidden; background:linear-gradient(180deg, rgba(201,169,97,0.08), rgba(201,169,97,0.02)); border:1px solid var(--border-soft); }
+  .game-canvas-wrap.fullscreen{ position:fixed; inset:0; z-index:1000; width:100vw; height:100vh; max-height:none; border-radius:0; border:none; }
+  .game-fullscreen-btn{ position:absolute; top:8px; right:8px; z-index:10; width:30px; height:30px; border-radius:9px; background:rgba(10,10,13,0.55); border:1px solid rgba(255,255,255,0.15); color:#fff; display:flex; align-items:center; justify-content:center; }
   #flappyCanvas{ width:100%; height:100%; display:block; touch-action:none; }
   .game-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,10,13,0.55); backdrop-filter:blur(2px); transition:opacity .2s; }
   .game-overlay.hidden{ display:none; }
@@ -460,49 +465,49 @@
     </div>
     <div class="auth-card">
       <div class="auth-tabs">
-        <button type="button" data-tab="login" class="active" id="tabLoginBtn">Giriş Yap</button>
-        <button type="button" data-tab="signup" id="tabSignupBtn">Hesap Oluştur</button>
+        <button type="button" data-tab="login" class="active" id="tabLoginBtn" data-i18n="loginTab">Giriş Yap</button>
+        <button type="button" data-tab="signup" id="tabSignupBtn" data-i18n="signupTab">Hesap Oluştur</button>
       </div>
 
       <div class="auth-error" id="loginError"></div>
       <form id="loginForm" autocomplete="off">
         <div class="field">
-          <label>Kullanıcı Adı</label>
-          <input type="text" id="loginUsername" placeholder="kullaniciadi" autocomplete="off" maxlength="20">
+          <label data-i18n="usernameLabel">Kullanıcı Adı</label>
+          <input type="text" id="loginUsername" placeholder="kullaniciadi" data-i18n-ph="usernamePlaceholder" autocomplete="off" maxlength="20">
         </div>
         <div class="field">
-          <label>Şifre</label>
+          <label data-i18n="passwordLabel">Şifre</label>
           <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="off">
         </div>
-        <button type="submit" class="btn btn-primary" id="loginSubmitBtn">Giriş Yap</button>
+        <button type="submit" class="btn btn-primary" id="loginSubmitBtn" data-i18n="loginBtn">Giriş Yap</button>
       </form>
 
       <form id="signupForm" class="hidden" autocomplete="off">
         <div class="field">
-          <label>Kullanıcı Adı</label>
-          <input type="text" id="signupUsername" placeholder="kullaniciadi" autocomplete="off" maxlength="20">
-          <div class="field-hint">6-20 karakter, sadece harf/rakam/alt çizgi</div>
+          <label data-i18n="usernameLabel">Kullanıcı Adı</label>
+          <input type="text" id="signupUsername" placeholder="kullaniciadi" data-i18n-ph="usernamePlaceholder" autocomplete="off" maxlength="20">
+          <div class="field-hint" data-i18n="usernameHint">4-20 karakter, sadece harf/rakam/alt çizgi</div>
         </div>
         <div class="field">
-          <label>Şifre</label>
-          <input type="password" id="signupPassword" placeholder="En az 6 karakter" autocomplete="off">
+          <label data-i18n="passwordLabel">Şifre</label>
+          <input type="password" id="signupPassword" placeholder="En az 6 karakter" data-i18n-ph="signupPasswordPlaceholder" autocomplete="off">
         </div>
         <div class="field">
-          <label>Şifre (Tekrar)</label>
+          <label data-i18n="passwordConfirmLabel">Şifre (Tekrar)</label>
           <input type="password" id="signupPassword2" placeholder="••••••••" autocomplete="off">
         </div>
         <div class="auth-error" id="signupError"></div>
-        <button type="submit" class="btn btn-primary" id="signupSubmitBtn">Hesap Oluştur</button>
+        <button type="submit" class="btn btn-primary" id="signupSubmitBtn" data-i18n="signupBtn">Hesap Oluştur</button>
       </form>
     </div>
-    <div class="auth-foot">Devam ederek topluluk kurallarını kabul etmiş olursun.</div>
+    <div class="auth-foot" data-i18n="appTagline">Devam ederek topluluk kurallarını kabul etmiş olursun.</div>
   </div>
 </div>
 
 <!-- ================= APP SCREEN ================= -->
 <div id="appScreen" class="hidden">
   <header class="app-header">
-    <div class="brandmark">
+    <div class="brandmark" id="headerBrandBtn" style="cursor:pointer;">
       <svg width="19" height="19" viewBox="0 0 26 26" fill="none"><path d="M13 1L24 13L13 25L2 13L13 1Z" stroke="#c9a961" stroke-width="1.3"/><path d="M13 8L18 13L13 18L8 13L13 8Z" fill="#c9a961"/></svg>
       <span class="brand-word" style="font-size:15px;">Mini<em>Sc</em>Me</span>
     </div>
@@ -519,11 +524,11 @@
       <div class="composer">
         <div class="composer-row">
           <div class="avatar sm" id="composerAvatar">•</div>
-          <textarea id="postText" placeholder="Aklından ne geçiyor?" maxlength="500" rows="2"></textarea>
+          <textarea id="postText" placeholder="Aklından ne geçiyor?" data-i18n-ph="postPlaceholder" maxlength="500" rows="2"></textarea>
         </div>
         <div class="composer-foot">
           <span class="char-count" id="postCharCount">0/500</span>
-          <button class="btn btn-primary btn-sm" id="submitPostBtn">Paylaş</button>
+          <button class="btn btn-primary btn-sm" id="submitPostBtn" data-i18n="shareBtn">Paylaş</button>
         </div>
       </div>
       <div id="postsList"></div>
@@ -534,14 +539,14 @@
       <div id="chatListView">
         <div class="search-bar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="userSearchInput" placeholder="Kullanıcı ara…" maxlength="20">
+          <input type="text" id="userSearchInput" placeholder="Kullanıcı ara…" data-i18n-ph="userSearchPlaceholder" maxlength="20">
         </div>
         <div class="search-results hidden" id="userSearchResults"></div>
         <div id="requestsSection" class="hidden">
-          <div class="section-label">Mesaj İstekleri</div>
+          <div class="section-label" data-i18n="msgRequestsTitle">Mesaj İstekleri</div>
           <div id="requestsList"></div>
         </div>
-        <div class="section-label">Sohbetler</div>
+        <div class="section-label" data-i18n="chatsTitle">Sohbetler</div>
         <div id="chatsList"></div>
       </div>
 
@@ -550,7 +555,7 @@
           <button class="icon-btn" id="backFromOtherProfileBtn">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <div class="meta"><div class="uname">Profil</div></div>
+          <div class="meta"><div class="uname" data-i18n="navProfile">Profil</div></div>
         </div>
         <div style="padding:22px 16px;">
           <div class="profile-hero">
@@ -558,20 +563,21 @@
             <div>
               <div class="pname" id="otherProfileName">—</div>
               <div class="pjoined" id="otherProfilePresence">—</div>
-              <div class="profile-stats"><div class="profile-stat" id="otherProfileFriendStat"><b id="otherProfileFriendCount">0</b> arkadaş</div></div>
+              <div class="profile-stats"><div class="profile-stat" id="otherProfileFriendStat"><b id="otherProfileFriendCount">0</b> <span data-i18n="friendsSuffix">arkadaş</span></div></div>
             </div>
           </div>
+          <div class="profile-bio hidden" id="otherProfileBio"></div>
           <div class="profile-actions" id="otherProfileActions"></div>
           <div id="otherProfileFriendsSection" class="hidden">
-            <div class="section-label">Arkadaşları</div>
+            <div class="section-label" data-i18n="friendsListTitle">Arkadaşları</div>
             <div id="otherProfileFriendsList"></div>
           </div>
           <div id="otherProfileRoomsSection" class="hidden">
-            <div class="section-label">Katıldığı Odalar</div>
+            <div class="section-label" data-i18n="joinedRoomsTitle">Katıldığı Odalar</div>
             <div id="otherProfileRoomsList"></div>
           </div>
           <div id="otherProfilePostsSection" class="hidden">
-            <div class="section-label">Paylaşımları</div>
+            <div class="section-label" data-i18n="postsTitle">Paylaşımları</div>
             <div id="otherProfilePostsList"></div>
           </div>
         </div>
@@ -585,9 +591,9 @@
           <div class="avatar sm" id="threadAvatar">•</div>
           <div class="meta">
             <div class="uname" id="threadUsername">—</div>
-            <div class="usub" id="threadPresence">çevrimdışı</div>
+            <div class="usub" id="threadPresence" data-i18n="offline">çevrimdışı</div>
           </div>
-          <button class="icon-btn" id="blockUserBtn" title="Engelle">
+          <button class="icon-btn" id="blockUserBtn" title="Engelle" data-i18n-title="blockUserTitle">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg>
           </button>
         </div>
@@ -597,7 +603,7 @@
           <button id="cancelReplyBtn">✕</button>
         </div>
         <div class="thread-input">
-          <input type="text" id="threadMsgInput" placeholder="Mesaj yaz…" maxlength="1000">
+          <input type="text" id="threadMsgInput" placeholder="Mesaj yaz…" data-i18n-ph="msgInputPlaceholder" maxlength="1000">
           <button class="send-btn" id="threadSendBtn">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
           </button>
@@ -611,14 +617,14 @@
         <div class="rooms-toolbar">
           <div class="search-bar">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input type="text" id="roomSearchInput" placeholder="Oda ara…" maxlength="30">
+            <input type="text" id="roomSearchInput" placeholder="Oda ara…" data-i18n-ph="roomSearchPlaceholder" maxlength="30">
           </div>
           <button class="create-room-btn" id="openCreateRoomBtn" title="Oda Oluştur">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
           </button>
         </div>
         <div class="search-results hidden" id="roomSearchResults"></div>
-        <div class="section-label">Odalarım</div>
+        <div class="section-label" data-i18n="myRoomsTitle">Odalarım</div>
         <div id="myRoomsList"></div>
       </div>
 
@@ -631,10 +637,10 @@
             <div class="uname" id="roomTitleText">—</div>
             <div class="usub" id="roomMemberCountText">—</div>
           </div>
-          <button class="icon-btn room-members-btn" id="roomMembersBtn" title="Üyeler">
+          <button class="icon-btn room-members-btn" id="roomMembersBtn" title="Üyeler" data-i18n-title="membersTitle">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
           </button>
-          <button class="icon-btn hidden" id="roomRequestsBtn" title="Katılma İstekleri">
+          <button class="icon-btn hidden" id="roomRequestsBtn" title="Katılma İstekleri" data-i18n-title="joinRequestsTitle">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
           </button>
           <button class="icon-btn" id="roomLeaveOrDeleteBtn" title="Ayrıl / Sil">
@@ -643,7 +649,7 @@
         </div>
         <div class="thread-body" id="roomBody"></div>
         <div class="thread-input">
-          <input type="text" id="roomMsgInput" placeholder="Odaya yaz…" maxlength="1000">
+          <input type="text" id="roomMsgInput" placeholder="Odaya yaz…" data-i18n-ph="roomMsgPlaceholder" maxlength="1000">
           <button class="send-btn" id="roomSendBtn">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
           </button>
@@ -658,53 +664,61 @@
         <div>
           <div class="pname" id="myProfileName">—</div>
           <div class="pjoined" id="myProfileJoined">—</div>
-          <div class="profile-stats"><div class="profile-stat"><b id="myFriendCount">0</b> arkadaş</div></div>
+          <div class="profile-stats"><div class="profile-stat"><b id="myFriendCount">0</b> <span data-i18n="friendsSuffix">arkadaş</span></div></div>
         </div>
       </div>
+      <div class="profile-bio" id="myProfileBio"></div>
+      <button class="btn btn-ghost btn-sm" id="editProfileBtn" style="width:auto;margin-bottom:22px;" data-i18n="editProfileBtn">Profili Düzenle</button>
 
       <div id="notificationsSection" class="hidden">
-        <div class="section-label">Bildirimler</div>
+        <div class="section-label" data-i18n="notificationsTitle">Bildirimler</div>
         <div id="friendReqList"></div>
       </div>
 
-      <div class="section-label">Arkadaşlar</div>
-      <div id="friendsList"><div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div></div>
+      <div class="section-label" data-i18n="friendsTitle">Arkadaşlar</div>
+      <div id="friendsList"><div class="sub" style="color:var(--text-faint);font-size:13px;" data-i18n="noFriendsYet">Henüz arkadaşın yok.</div></div>
     </section>
 
     <!-- GAMES -->
     <section class="view hidden" id="gamesView">
-      <div class="game-card">
+      <div class="game-card" id="flappyCard">
         <div class="game-header">
-          <div class="game-title">Flappy Dot</div>
-          <div class="game-best">En iyi: <b id="gameBestScore">0</b></div>
+          <div class="game-title" data-i18n="flappyDotName">Flappy Dot</div>
+          <div class="game-best"><span data-i18n="bestLabel">En iyi</span>: <b id="gameBestScore">0</b></div>
         </div>
         <div class="game-canvas-wrap">
+          <button class="game-fullscreen-btn" id="flappyFullscreenBtn" title="Tam Ekran">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M8 21H5a2 2 0 01-2-2v-3M16 21h3a2 2 0 002-2v-3"/></svg>
+          </button>
           <canvas id="flappyCanvas"></canvas>
           <div class="game-overlay" id="gameOverlay">
             <div class="game-overlay-inner">
-              <div class="game-overlay-title" id="gameOverlayTitle">Başlamak için dokun</div>
+              <div class="game-overlay-title" id="gameOverlayTitle" data-i18n="tapToStart">Başlamak için dokun</div>
               <div class="game-overlay-score hidden" id="gameOverlayScore"></div>
-              <button class="btn btn-primary btn-sm" id="gameStartBtn">Başla</button>
-              <button class="btn btn-ghost btn-sm hidden" id="gameShareBtn" style="margin-top:8px;">Arkadaşlarınla Paylaş</button>
+              <button class="btn btn-primary btn-sm" id="gameStartBtn" data-i18n="startGame">Başla</button>
+              <button class="btn btn-ghost btn-sm hidden" id="gameShareBtn" style="margin-top:8px;" data-i18n="shareToFriends">Arkadaşlarınla Paylaş</button>
             </div>
           </div>
         </div>
         <div class="game-score-live" id="gameLiveScore">0</div>
       </div>
 
-      <div class="game-card" style="margin-top:16px;">
+      <div class="game-card" id="snakeCard" style="margin-top:16px;">
         <div class="game-header">
-          <div class="game-title">Short Snake</div>
-          <div class="game-best">En iyi: <b id="snakeBestScore">0</b></div>
+          <div class="game-title" data-i18n="shortSnakeName">Short Snake</div>
+          <div class="game-best"><span data-i18n="bestLabel">En iyi</span>: <b id="snakeBestScore">0</b></div>
         </div>
         <div class="game-canvas-wrap">
+          <button class="game-fullscreen-btn" id="snakeFullscreenBtn" title="Tam Ekran">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M8 21H5a2 2 0 01-2-2v-3M16 21h3a2 2 0 002-2v-3"/></svg>
+          </button>
           <canvas id="snakeCanvas"></canvas>
           <div class="game-overlay" id="snakeOverlay">
             <div class="game-overlay-inner">
-              <div class="game-overlay-title" id="snakeOverlayTitle">Başlamak için dokun</div>
+              <div class="game-overlay-title" id="snakeOverlayTitle" data-i18n="tapToStart">Başlamak için dokun</div>
               <div class="game-overlay-score hidden" id="snakeOverlayScore"></div>
-              <button class="btn btn-primary btn-sm" id="snakeStartBtn">Başla</button>
-              <button class="btn btn-ghost btn-sm hidden" id="snakeShareBtn" style="margin-top:8px;">Arkadaşlarınla Paylaş</button>
+              <button class="btn btn-primary btn-sm" id="snakeStartBtn" data-i18n="startGame">Başla</button>
+              <button class="btn btn-ghost btn-sm hidden" id="snakeShareBtn" style="margin-top:8px;" data-i18n="shareToFriends">Arkadaşlarınla Paylaş</button>
             </div>
           </div>
         </div>
@@ -725,46 +739,63 @@
       </div>
 
       <div class="settings-block">
-        <h3>Gizlilik</h3>
-        <div class="sub">Kimlerin seni bulabileceğini ve sana ulaşabileceğini yönet.</div>
+        <h3 data-i18n="privacyTitle">Gizlilik</h3>
+        <div class="sub" data-i18n="privacyDesc">Kimlerin seni bulabileceğini ve sana ulaşabileceğini yönet.</div>
         <div class="toggle-row">
-          <div><div class="label">Arkadaş olmayanlardan mesaj isteği al</div><div class="desc">Kapalıyken tanımadıkların sana yazsa da istek görünmez.</div></div>
+          <div><div class="label" data-i18n="allowNonFriendLabel">Arkadaş olmayanlardan mesaj isteği al</div><div class="desc" data-i18n="allowNonFriendDesc">Kapalıyken tanımadıkların sana yazsa da istek görünmez.</div></div>
           <div class="switch" id="allowNonFriendSwitch"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Profilimi aramada gizle</div><div class="desc">Arkadaşın olmayanlar seni kullanıcı aramasında bulamaz.</div></div>
+          <div><div class="label" data-i18n="hideFromSearchLabel">Profilimi aramada gizle</div><div class="desc" data-i18n="hideFromSearchDesc">Arkadaşın olmayanlar seni kullanıcı aramasında bulamaz.</div></div>
           <div class="switch" id="hideFromSearchSwitch"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Arkadaş listemi herkese açık göster</div><div class="desc">Açıksa başkaları arkadaş sayına dokununca listeni görebilir. Kapalıyken sadece sayı görünür.</div></div>
+          <div><div class="label" data-i18n="showFriendsLabel">Arkadaş listemi herkese açık göster</div><div class="desc" data-i18n="showFriendsDesc">Açıksa başkaları arkadaş sayına dokununca listeni görebilir. Kapalıyken sadece sayı görünür.</div></div>
           <div class="switch" id="showFriendsSwitch"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Katıldığım odaları profilimde göster</div><div class="desc">Herkese açık odalardaki üyeliklerin profilini ziyaret edenlere görünür.</div></div>
+          <div><div class="label" data-i18n="showRoomsLabel">Katıldığım odaları profilimde göster</div><div class="desc" data-i18n="showRoomsDesc">Herkese açık odalardaki üyeliklerin profilini ziyaret edenlere görünür.</div></div>
           <div class="switch on" id="showRoomsSwitch"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Paylaşımlarımı profilimde göster</div><div class="desc">Ana sayfaya yazdıkların profilini ziyaret edenlere görünür.</div></div>
+          <div><div class="label" data-i18n="showPostsLabel">Paylaşımlarımı profilimde göster</div><div class="desc" data-i18n="showPostsDesc">Ana sayfaya yazdıkların profilini ziyaret edenlere görünür.</div></div>
           <div class="switch on" id="showPostsSwitch"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="label" data-i18n="hideOnlineLabel">Çevrimiçi durumumu gizle</div><div class="desc" data-i18n="hideOnlineDesc">Açıksa kimse sohbette veya profilinde çevrimiçi olduğunu göremez.</div></div>
+          <div class="switch" id="hideOnlineSwitch"></div>
         </div>
       </div>
 
       <div class="settings-block">
-        <h3>Sohbet</h3>
-        <div class="sub">Mesajlaşma deneyimini kişiselleştir.</div>
+        <h3 data-i18n="chatTitle">Sohbet</h3>
+        <div class="sub" data-i18n="chatDesc">Mesajlaşma deneyimini kişiselleştir.</div>
         <div class="toggle-row">
-          <div><div class="label">Mesaj önizlemesini gizle</div><div class="desc">Sohbet listesinde son mesaj metni "Yeni mesaj" olarak görünür.</div></div>
+          <div><div class="label" data-i18n="hidePreviewLabel">Mesaj önizlemesini gizle</div><div class="desc" data-i18n="hidePreviewDesc">Sohbet listesinde son mesaj metni "Yeni mesaj" olarak görünür.</div></div>
           <div class="switch" id="hidePreviewSwitch"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Bildirim sesi</div><div class="desc">Açık bir sohbette yeni mesaj gelince kısa bir ses çal.</div></div>
+          <div><div class="label" data-i18n="soundLabel">Bildirim sesi</div><div class="desc" data-i18n="soundDesc">Açık bir sohbette yeni mesaj gelince kısa bir ses çal.</div></div>
           <div class="switch on" id="soundSwitch"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="label" data-i18n="msgBannerLabel">Üstten mesaj balonu göster</div><div class="desc" data-i18n="msgBannerDesc">Mesaj gelince ekranın üstünde kısa bir bildirim belirir.</div></div>
+          <div class="switch on" id="msgBannerSwitch"></div>
         </div>
       </div>
 
       <div class="settings-block">
-        <h3>Görünüm</h3>
-        <div class="sub">Vurgu rengini ve yoğunluğu seç.</div>
+        <h3 data-i18n="gamesTitle">Oyunlar</h3>
+        <div class="sub" data-i18n="gamesDesc">Oyun içi ses efektlerini yönet.</div>
+        <div class="toggle-row">
+          <div><div class="label" data-i18n="gameSoundLabel">Oyun sesi</div><div class="desc" data-i18n="gameSoundDesc">Skor kazanınca kısa bir ses çal.</div></div>
+          <div class="switch on" id="gameSoundSwitch"></div>
+        </div>
+      </div>
+
+      <div class="settings-block">
+        <h3 data-i18n="appearanceTitle">Görünüm</h3>
+        <div class="sub" data-i18n="appearanceDesc">Vurgu rengini ve yoğunluğu seç.</div>
         <div class="theme-swatches" id="themeSwatches">
           <div class="swatch active" data-theme="gold" style="background:#c9a961"></div>
           <div class="swatch" data-theme="rose" style="background:#c97a8f"></div>
@@ -773,27 +804,41 @@
           <div class="swatch" data-theme="violet" style="background:#a389c9"></div>
         </div>
         <div class="toggle-row">
-          <div><div class="label">Açık tema</div><div class="desc">Karanlık yerine aydınlık bir görünüm kullan.</div></div>
+          <div><div class="label" data-i18n="lightModeLabel">Açık tema</div><div class="desc" data-i18n="lightModeDesc">Karanlık yerine aydınlık bir görünüm kullan.</div></div>
           <div class="switch" id="lightModeSwitch"></div>
+        </div>
+        <div class="toggle-row">
+          <div><div class="label" data-i18n="largeTextLabel">Büyük yazı</div><div class="desc" data-i18n="largeTextDesc">Metinleri biraz daha büyük göster.</div></div>
+          <div class="switch" id="largeTextSwitch"></div>
         </div>
       </div>
 
       <div class="settings-block">
-        <h3>Engellenenler</h3>
-        <div class="sub">Engellediğin kullanıcılar sana mesaj gönderemez.</div>
-        <div id="blockedList"><div class="sub">Henüz kimseyi engellemedin.</div></div>
+        <h3 data-i18n="languageTitle">Dil</h3>
+        <div class="sub" data-i18n="languageDesc">Uygulama dilini seç.</div>
+        <div class="radio-group">
+          <div class="radio-opt" data-lang="tr" id="langOptTr">Türkçe</div>
+          <div class="radio-opt" data-lang="en" id="langOptEn">English</div>
+        </div>
       </div>
 
       <div class="settings-block">
-        <h3>Hakkında</h3>
-        <div class="about-line"><b>Sürüm</b><span>1.1</span></div>
-        <div class="about-line"><b>Durum</b><span style="color:var(--success);">Çevrimiçi</span></div>
+        <h3 data-i18n="blockedTitle">Engellenenler</h3>
+        <div class="sub" data-i18n="blockedDesc">Engellediğin kullanıcılar sana mesaj gönderemez.</div>
+        <div id="blockedList"><div class="sub" data-i18n="noBlockedYet">Henüz kimseyi engellemedin.</div></div>
       </div>
 
       <div class="settings-block">
-        <h3>Hesap</h3>
-        <button class="btn btn-ghost" id="logoutBtn" style="margin-bottom:10px;">Çıkış Yap</button>
-        <button class="btn btn-danger" id="deleteAccountBtn">Hesabı Kalıcı Olarak Sil</button>
+        <h3 data-i18n="aboutTitle">Hakkında</h3>
+        <div class="about-line"><b data-i18n="versionLabel">Sürüm</b><span>1.2</span></div>
+        <div class="about-line"><b data-i18n="statusLabel">Durum</b><span style="color:var(--success);" data-i18n="statusOnline">Çevrimiçi</span></div>
+      </div>
+
+      <div class="settings-block">
+        <h3 data-i18n="accountTitle">Hesap</h3>
+        <button class="btn btn-ghost" id="logoutBtn" style="margin-bottom:10px;" data-i18n="logoutBtn">Çıkış Yap</button>
+        <button class="btn btn-danger" id="deleteAccountBtn" style="margin-bottom:10px;" data-i18n="deleteAccountBtn">Hesabı Kalıcı Olarak Sil</button>
+        <button class="btn btn-ghost" id="switchAccountBtn" data-i18n="switchAccountBtn">Hesap Değiştir</button>
       </div>
     </section>
   </main>
@@ -802,24 +847,24 @@
     <div class="bottom-nav-inner">
       <button class="nav-btn active" data-view="home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>
-        <span>Ana Sayfa</span>
+        <span data-i18n="navHome">Ana Sayfa</span>
       </button>
       <button class="nav-btn" data-view="messages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-        <span>Mesajlar</span>
+        <span data-i18n="navMessages">Mesajlar</span>
         <div class="nav-badge" id="msgNavBadge">0</div>
       </button>
       <button class="nav-btn" data-view="rooms">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        <span>Odalar</span>
+        <span data-i18n="navRooms">Odalar</span>
       </button>
       <button class="nav-btn" data-view="games">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="5"/><path d="M7 10v4M5 12h4"/><circle cx="15" cy="10.5" r="1"/><circle cx="17.5" cy="13" r="1"/></svg>
-        <span>Oyunlar</span>
+        <span data-i18n="navGames">Oyunlar</span>
       </button>
       <button class="nav-btn" data-view="settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        <span>Ayarlar</span>
+        <span data-i18n="navSettings">Ayarlar</span>
       </button>
     </div>
   </nav>
@@ -850,13 +895,91 @@ const firebaseConfig = {
 };
 
 const EMAIL_DOMAIN = "@miniscme.internal";
+function defaultProfileFields(){
+  return {
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    allowNonFriendMessages: false,
+    hideProfileFromSearch: false,
+    hideMessagePreview: false,
+    soundEnabled: true,
+    showFriendsList: false,
+    showJoinedRooms: true,
+    showMyPosts: true,
+    lightMode: false,
+    theme: 'gold',
+    blocked: [],
+    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+    flappyHighScore: 0,
+    snakeHighScore: 0,
+    avatarInitials: '',
+    avatarColor: 'gold',
+    bio: '',
+    hideOnlineStatus: false,
+    gameSoundEnabled: true,
+    largeText: false,
+    showMsgBanner: true,
+    language: 'tr'
+  };
+}
 let app, auth, db;
 let configOk = firebaseConfig.apiKey && firebaseConfig.projectId;
 
+const accountApps = {};
+let accountsList = [];
+let accountCounter = 0;
+let currentAppName = null;
+
+function loadAccountsFromStorage(){
+  try{
+    const raw = localStorage.getItem('msc_accounts_v1');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      accountsList = parsed.accounts || [];
+      accountCounter = parsed.counter || 0;
+      return parsed.lastActive || null;
+    }
+  }catch(e){}
+  return null;
+}
+function saveAccountsToStorage(lastActive){
+  try{
+    localStorage.setItem('msc_accounts_v1', JSON.stringify({ accounts: accountsList, counter: accountCounter, lastActive: lastActive || currentAppName }));
+  }catch(e){}
+}
+function getFirebaseAppInstance(appName){
+  if(accountApps[appName]) return accountApps[appName];
+  let fbApp;
+  if(appName === '[DEFAULT]'){
+    fbApp = firebase.apps.find(a=>a.name==='[DEFAULT]') || firebase.initializeApp(firebaseConfig);
+  }else{
+    try{ fbApp = firebase.app(appName); }
+    catch(e){ fbApp = firebase.initializeApp(firebaseConfig, appName); }
+  }
+  const a = fbApp.auth();
+  const d = fbApp.firestore();
+  accountApps[appName] = { app: fbApp, auth: a, db: d };
+  return accountApps[appName];
+}
+function upsertAccountRecord(appName, uid, username){
+  const idx = accountsList.findIndex(a=>a.appName===appName);
+  if(idx>=0){ accountsList[idx].uid = uid; accountsList[idx].username = username; }
+  else{ accountsList.push({ appName, uid, username }); }
+  saveAccountsToStorage(appName);
+}
+
 if (configOk) {
-  app = firebase.initializeApp(firebaseConfig);
-  auth = firebase.auth();
-  db = firebase.firestore();
+  const lastActive = loadAccountsFromStorage();
+  let bootAppName;
+  if(lastActive && accountsList.some(a=>a.appName===lastActive)){
+    bootAppName = lastActive;
+  }else if(accountsList.length > 0){
+    bootAppName = accountsList[0].appName;
+  }else{
+    accountCounter++;
+    bootAppName = 'acct_'+accountCounter;
+    saveAccountsToStorage(bootAppName);
+  }
+  attachAccountAuthListener(bootAppName);
 } else {
   document.getElementById('loadingScreen').classList.add('hidden');
   document.getElementById('configWarning').classList.remove('hidden');
@@ -887,6 +1010,203 @@ const state = {
   unsub: {}
 };
 
+const I18N = {
+  tr: {
+    appTagline:"Devam ederek topluluk kurallarını kabul etmiş olursun.",
+    loginTab:"Giriş Yap", signupTab:"Hesap Oluştur",
+    usernameLabel:"Kullanıcı Adı", usernamePlaceholder:"kullaniciadi",
+    passwordLabel:"Şifre", passwordConfirmLabel:"Şifre (Tekrar)",
+    usernameHint:"4-20 karakter, sadece harf/rakam/alt çizgi",
+    signupPasswordPlaceholder:"En az 6 karakter",
+    loginBtn:"Giriş Yap", loginBtnLoading:"Giriş yapılıyor…",
+    signupBtn:"Hesap Oluştur", signupBtnChecking:"Kontrol ediliyor…",
+    configWarningTitle:"Firebase Yapılandırması Eksik",
+    configWarningBody:"index.html dosyasının en altındaki firebaseConfig objesini kendi Firebase projenizin bilgileriyle doldurun.",
+    navHome:"Ana Sayfa", navMessages:"Mesajlar", navRooms:"Odalar", navGames:"Oyunlar", navProfile:"Profil", navSettings:"Ayarlar",
+    postPlaceholder:"Aklından ne geçiyor?", shareBtn:"Paylaş",
+    emptyPostsTitle:"Henüz paylaşım yok", emptyPostsDesc:"İlk paylaşımı sen yap.",
+    commentsTitle:"Yorumlar", noComments:"Henüz yorum yok.", commentPlaceholder:"Yorum yaz…",
+    editPostTitle:"Paylaşımı Düzenle", deletePostTitle:"Paylaşımı Sil", deletePostMsg:"Bu paylaşım kalıcı olarak silinecek.",
+    sharePostTitle:"Paylaş", shareFriendsEmpty:"Henüz arkadaşın yok.", sendBtn:"Gönder", sending:"Gönderiliyor…", sent:"Gönderildi ✓",
+    userSearchPlaceholder:"Kullanıcı ara…", msgRequestsTitle:"Mesaj İstekleri", chatsTitle:"Sohbetler",
+    noChatsYet:"Henüz sohbetin yok.", noUserFound:"Kullanıcı bulunamadı.", wantsToMessage:"sana mesaj göndermek istiyor",
+    rejectBtn:"Reddet", acceptBtn:"Kabul Et", viewProfile:"Profili görüntüle",
+    msgInputPlaceholder:"Mesaj yaz…", editMsgTitle:"Mesajı Düzenle", deleteMsgTitle:"Mesajı Sil",
+    deleteMsgMsg:"Bu mesaj kalıcı olarak silinecek.", editedTag:"düzenlendi",
+    online:"çevrimiçi", offline:"çevrimdışı", blockUserTitle:"Kullanıcıyı Engelle",
+    blockUserMsg:" artık sana mesaj gönderemez. Devam edilsin mi?", blockBtn:"Engelle",
+    newMsg:"Yeni mesaj", startChat:"Sohbete başla", seenNow:"Az önce görüldü", seenAt:"Görüldü",
+    addFriendBtn:"Arkadaş Ekle", requestSentBtn:"İstek Gönderildi", acceptFriendReqBtn:"Arkadaşlık İsteğini Kabul Et",
+    sendMsgBtn:"Mesaj Gönder", unfriendBtn:"Arkadaşlıktan Çıkar", noFriendsOfUser:"Arkadaşı yok.", friendsSuffix:"arkadaş", noFriendsYet:"Henüz arkadaşın yok.",
+    roomSearchPlaceholder:"Oda ara…", myRoomsTitle:"Odalarım", noRoomsYet:"Henüz bir odaya katılmadın.",
+    createRoomTitle:"Oda Oluştur", roomNameLabel:"Oda Adı", roomNamePlaceholder:"ör. sohbet-odasi",
+    visibilityLabel:"Görünürlük", publicOpt:"Herkese Açık", inviteOpt:"Davetle", maxMembersLabel:"Maksimum Üye",
+    createBtn:"Oluştur", cancelBtn:"Vazgeç", roomNotFound:"Oda bulunamadı.", roomFull:"Oda dolu.",
+    joinedRoom:"Odaya katıldın.", joinRequestSent:"Katılma isteği gönderildi.", alreadyRequested:"İsteğin zaten gönderildi.",
+    roomCreated:"Oda oluşturuldu.", roomDeleted:"Oda silindi.", roomLoadError:"Oda yüklenirken bir sorun oluştu.",
+    membersTitle:"Üyeler", joinRequestsTitle:"Katılma İstekleri", noPendingRequests:"Bekleyen istek yok.",
+    wantsToJoin:"katılmak istiyor", ownerLabel:"Sahibi", deleteRoomTitle:"Odayı Sil", leaveRoomTitle:"Odadan Ayrıl",
+    leaveBtn:"Ayrıl", deleteBtn:"Sil", editBtn:"Düzenle", youAreOwner:"sahibi sensin", roomMsgPlaceholder:"Odaya yaz…",
+    memberSuffix:"üye", openBadge:"Açık", inviteBadge:"Davetli",
+    editProfileBtn:"Profili Düzenle", notificationsTitle:"Bildirimler", friendsTitle:"Arkadaşlar",
+    friendReqReceived:"arkadaşlık isteği gönderdi", removeBtn:"Çıkar",
+    editProfileTitle:"Profili Düzenle", avatarInitialsLabel:"Avatar Baş Harfleri",
+    avatarInitialsHint:"Boş bırakırsan kullanıcı adından otomatik oluşturulur.",
+    avatarColorLabel:"Avatar Rengi", bioLabel:"Biyografi", bioPlaceholder:"Kendinden bahset…", saveBtn:"Kaydet",
+    friendsListTitle:"Arkadaşları", joinedRoomsTitle:"Katıldığı Odalar", postsTitle:"Paylaşımları",
+    settingsTitle:"Ayarlar", privacyTitle:"Gizlilik", privacyDesc:"Kimlerin seni bulabileceğini ve sana ulaşabileceğini yönet.",
+    allowNonFriendLabel:"Arkadaş olmayanlardan mesaj isteği al", allowNonFriendDesc:"Kapalıyken tanımadıkların sana yazsa da istek görünmez.",
+    hideFromSearchLabel:"Profilimi aramada gizle", hideFromSearchDesc:"Arkadaşın olmayanlar seni kullanıcı aramasında bulamaz.",
+    showFriendsLabel:"Arkadaş listemi herkese açık göster", showFriendsDesc:"Açıksa başkaları arkadaş sayına dokununca listeni görebilir. Kapalıyken sadece sayı görünür.",
+    showRoomsLabel:"Katıldığım odaları profilimde göster", showRoomsDesc:"Herkese açık odalardaki üyeliklerin profilini ziyaret edenlere görünür.",
+    showPostsLabel:"Paylaşımlarımı profilimde göster", showPostsDesc:"Ana sayfaya yazdıkların profilini ziyaret edenlere görünür.",
+    hideOnlineLabel:"Çevrimiçi durumumu gizle", hideOnlineDesc:"Açıksa kimse sohbette veya profilinde çevrimiçi olduğunu göremez.",
+    chatTitle:"Sohbet", chatDesc:"Mesajlaşma deneyimini kişiselleştir.",
+    hidePreviewLabel:"Mesaj önizlemesini gizle", hidePreviewDesc:'Sohbet listesinde son mesaj metni "Yeni mesaj" olarak görünür.',
+    soundLabel:"Bildirim sesi", soundDesc:"Açık bir sohbette yeni mesaj gelince kısa bir ses çal.",
+    msgBannerLabel:"Üstten mesaj balonu göster", msgBannerDesc:"Mesaj gelince ekranın üstünde kısa bir bildirim belirir.",
+    gamesTitle:"Oyunlar", gamesDesc:"Oyun içi ses efektlerini yönet.",
+    gameSoundLabel:"Oyun sesi", gameSoundDesc:"Skor kazanınca kısa bir ses çal.",
+    appearanceTitle:"Görünüm", appearanceDesc:"Vurgu rengini ve yoğunluğu seç.",
+    lightModeLabel:"Açık tema", lightModeDesc:"Karanlık yerine aydınlık bir görünüm kullan.",
+    largeTextLabel:"Büyük yazı", largeTextDesc:"Metinleri biraz daha büyük göster.",
+    languageTitle:"Dil", languageDesc:"Uygulama dilini seç.",
+    blockedTitle:"Engellenenler", blockedDesc:"Engellediğin kullanıcılar sana mesaj gönderemez.", noBlockedYet:"Henüz kimseyi engellemedin.",
+    aboutTitle:"Hakkında", versionLabel:"Sürüm", statusLabel:"Durum", statusOnline:"Çevrimiçi",
+    accountTitle:"Hesap", logoutBtn:"Çıkış Yap", deleteAccountBtn:"Hesabı Kalıcı Olarak Sil", switchAccountBtn:"Hesap Değiştir",
+    addAccountTitle:"Hesap Ekle", addAccountBtn:"+ Yeni Hesap Ekle", currentAccountLabel:"Şu anki hesap", unknownAccount:"Bilinmeyen",
+    switchAccountTitle:"Hesap Değiştir",
+    confirmCancelBtn:"Vazgeç",
+    unfriendConfirmTitle:"Arkadaşlıktan Çıkar", unfriendConfirmMsg:"Bu kişiyi arkadaş listenden kaldırmak istediğine emin misin?",
+    logoutConfirmTitle:"Çıkış Yap", logoutConfirmMsg:"Hesabından çıkış yapmak istediğine emin misin?",
+    deleteAccountConfirmTitle:"Hesabı Sil", deleteAccountConfirmMsg:"Bu işlem geri alınamaz. Hesabın ve kullanıcı adın kalıcı olarak silinecek. Devam edilsin mi?",
+    deleteRoomConfirmMsg:"odası kalıcı olarak silinecek. Emin misin?", leaveRoomConfirmMsg:"odasından ayrılmak istediğine emin misin?",
+    friendReqSent:"Arkadaşlık isteği gönderildi.", reAuthRequired:"Bu işlem için tekrar giriş yapman gerekiyor. Çıkış yapıp tekrar giriş dene.",
+    friendsListHidden:"Bu kullanıcı arkadaş listesini gizli tutuyor.", cantMessageBlocked:"Bu kullanıcıya mesaj gönderemezsin.",
+    youBlockedUser:" engellendi.", sendFailedRetry:"Gönderilemedi, tekrar dene.", sendFailed:"Gönderilemedi.",
+    accountCreatedWelcome:"Hesap oluşturuldu, hoş geldin!", accountCreateProblem:"Hesap oluşturulurken bir sorun oluştu, tekrar dene.",
+    accountDeleted:"Hesap silindi.", accountDeleteFailed:"Hesap silinemedi, tekrar dene.",
+    saveFailedRetry:"Kaydedilemedi, tekrar dene.", postFailedRetry:"Paylaşılamadı, tekrar dene.", profileUpdated:"Profil güncellendi.",
+    chatOpenFailed:"Sohbet açılamadı, Firestore kurallarını kontrol et.", friendReqFailed:"İstek gönderilemedi.",
+    sentToUserSuffix:" kişisine gönderildi.", nowFriendsSuffix:" artık arkadaşın.", joinedRoomSuffix:" odaya katıldı.",
+    unblockedSuffix:" engeli kaldırıldı.", roomAlreadyExists:"Bu isimde bir oda zaten var.", roomCreateFailed:"Oda oluşturulamadı.", noRoomFound:"Oda bulunamadı.",
+    roomNameLenErr:"Oda adı 3-30 karakter olmalı.", usernameLenErr:"Kullanıcı adı 4-20 karakter olmalı ve sadece harf, rakam, alt çizgi içermeli.",
+    passLenErr:"Şifre en az 6 karakter olmalı.", passMismatchErr:"Şifreler eşleşmiyor.", usernameTakenErr:"Bu kullanıcı adı zaten alınmış.",
+    loginCredsRequired:"Kullanıcı adı ve şifre gerekli.", wrongCreds:"Kullanıcı adı veya şifre hatalı.",
+    networkErr:"Bağlantı hatası, tekrar dene.", tooManyAttempts:"Çok fazla deneme yapıldı, biraz sonra tekrar dene.",
+    somethingWrong:"Bir şeyler ters gitti, tekrar dene.", loading:"Yükleniyor…", noTimestamp:"Zaman bilgisi yok",
+    shareToFriends:"Arkadaşlarınla Paylaş", playAgain:"Tekrar Oyna", startGame:"Başla", tapToStart:"Başlamak için dokun",
+    gameOver:"Oyun Bitti", scoreLabel:"Skor", bestLabel:"En iyi", flappyDotName:"Flappy Dot", shortSnakeName:"Short Snake",
+    congratsFull:"Tebrikler, alan bitti!", shareScoreTitle:"Skoru Paylaş"
+  },
+  en: {
+    appTagline:"By continuing you agree to the community guidelines.",
+    loginTab:"Log In", signupTab:"Create Account",
+    usernameLabel:"Username", usernamePlaceholder:"username",
+    passwordLabel:"Password", passwordConfirmLabel:"Password (Confirm)",
+    usernameHint:"4-20 characters, letters/numbers/underscore only",
+    signupPasswordPlaceholder:"At least 6 characters",
+    loginBtn:"Log In", loginBtnLoading:"Logging in…",
+    signupBtn:"Create Account", signupBtnChecking:"Checking…",
+    configWarningTitle:"Firebase Configuration Missing",
+    configWarningBody:"Fill in the firebaseConfig object at the bottom of index.html with your own Firebase project's details.",
+    navHome:"Home", navMessages:"Messages", navRooms:"Rooms", navGames:"Games", navProfile:"Profile", navSettings:"Settings",
+    postPlaceholder:"What's on your mind?", shareBtn:"Post",
+    emptyPostsTitle:"No posts yet", emptyPostsDesc:"Be the first to post.",
+    commentsTitle:"Comments", noComments:"No comments yet.", commentPlaceholder:"Write a comment…",
+    editPostTitle:"Edit Post", deletePostTitle:"Delete Post", deletePostMsg:"This post will be permanently deleted.",
+    sharePostTitle:"Share", shareFriendsEmpty:"You don't have any friends yet.", sendBtn:"Send", sending:"Sending…", sent:"Sent ✓",
+    userSearchPlaceholder:"Search users…", msgRequestsTitle:"Message Requests", chatsTitle:"Chats",
+    noChatsYet:"You don't have any chats yet.", noUserFound:"No user found.", wantsToMessage:"wants to message you",
+    rejectBtn:"Decline", acceptBtn:"Accept", viewProfile:"View profile",
+    msgInputPlaceholder:"Write a message…", editMsgTitle:"Edit Message", deleteMsgTitle:"Delete Message",
+    deleteMsgMsg:"This message will be permanently deleted.", editedTag:"edited",
+    online:"online", offline:"offline", blockUserTitle:"Block User",
+    blockUserMsg:" won't be able to message you anymore. Continue?", blockBtn:"Block",
+    newMsg:"New message", startChat:"Start chatting", seenNow:"Seen just now", seenAt:"Seen",
+    addFriendBtn:"Add Friend", requestSentBtn:"Request Sent", acceptFriendReqBtn:"Accept Friend Request",
+    sendMsgBtn:"Send Message", unfriendBtn:"Unfriend", noFriendsOfUser:"No friends.", friendsSuffix:"friends", noFriendsYet:"You don't have any friends yet.",
+    roomSearchPlaceholder:"Search rooms…", myRoomsTitle:"My Rooms", noRoomsYet:"You haven't joined any rooms yet.",
+    createRoomTitle:"Create Room", roomNameLabel:"Room Name", roomNamePlaceholder:"e.g. chat-room",
+    visibilityLabel:"Visibility", publicOpt:"Public", inviteOpt:"Invite Only", maxMembersLabel:"Max Members",
+    createBtn:"Create", cancelBtn:"Cancel", roomNotFound:"Room not found.", roomFull:"Room is full.",
+    joinedRoom:"You joined the room.", joinRequestSent:"Join request sent.", alreadyRequested:"Your request has already been sent.",
+    roomCreated:"Room created.", roomDeleted:"Room deleted.", roomLoadError:"There was a problem loading the room.",
+    membersTitle:"Members", joinRequestsTitle:"Join Requests", noPendingRequests:"No pending requests.",
+    wantsToJoin:"wants to join", ownerLabel:"Owner", deleteRoomTitle:"Delete Room", leaveRoomTitle:"Leave Room",
+    leaveBtn:"Leave", deleteBtn:"Delete", editBtn:"Edit", youAreOwner:"you're the owner", roomMsgPlaceholder:"Write in the room…",
+    memberSuffix:"members", openBadge:"Public", inviteBadge:"Invite",
+    editProfileBtn:"Edit Profile", notificationsTitle:"Notifications", friendsTitle:"Friends",
+    friendReqReceived:"sent a friend request", removeBtn:"Remove",
+    editProfileTitle:"Edit Profile", avatarInitialsLabel:"Avatar Initials",
+    avatarInitialsHint:"Leave empty to auto-generate from your username.",
+    avatarColorLabel:"Avatar Color", bioLabel:"Bio", bioPlaceholder:"Tell us about yourself…", saveBtn:"Save",
+    friendsListTitle:"Friends", joinedRoomsTitle:"Joined Rooms", postsTitle:"Posts",
+    settingsTitle:"Settings", privacyTitle:"Privacy", privacyDesc:"Manage who can find and reach you.",
+    allowNonFriendLabel:"Allow messages from non-friends", allowNonFriendDesc:"When off, requests from strangers stay hidden.",
+    hideFromSearchLabel:"Hide my profile from search", hideFromSearchDesc:"Non-friends won't find you in user search.",
+    showFriendsLabel:"Show my friends list publicly", showFriendsDesc:"When on, others can tap your friend count to see the list. When off, only the count shows.",
+    showRoomsLabel:"Show rooms I've joined on my profile", showRoomsDesc:"Your public room memberships are visible to profile visitors.",
+    showPostsLabel:"Show my posts on my profile", showPostsDesc:"What you post on the home feed is visible to profile visitors.",
+    hideOnlineLabel:"Hide my online status", hideOnlineDesc:"When on, no one can see you're online in chat or on your profile.",
+    chatTitle:"Chat", chatDesc:"Personalize your messaging experience.",
+    hidePreviewLabel:"Hide message preview", hidePreviewDesc:'Last message text in the chat list shows as "New message" instead.',
+    soundLabel:"Notification sound", soundDesc:"Play a short sound for new messages in an open chat.",
+    msgBannerLabel:"Show top message banner", msgBannerDesc:"A brief notification appears at the top when a message arrives.",
+    gamesTitle:"Games", gamesDesc:"Manage in-game sound effects.",
+    gameSoundLabel:"Game sound", gameSoundDesc:"Play a short sound when you score.",
+    appearanceTitle:"Appearance", appearanceDesc:"Choose the accent color and density.",
+    lightModeLabel:"Light theme", lightModeDesc:"Use a bright look instead of dark.",
+    largeTextLabel:"Larger text", largeTextDesc:"Show slightly larger text.",
+    languageTitle:"Language", languageDesc:"Choose the app language.",
+    blockedTitle:"Blocked Users", blockedDesc:"Blocked users can't message you.", noBlockedYet:"You haven't blocked anyone yet.",
+    aboutTitle:"About", versionLabel:"Version", statusLabel:"Status", statusOnline:"Online",
+    accountTitle:"Account", logoutBtn:"Log Out", deleteAccountBtn:"Delete Account Permanently", switchAccountBtn:"Switch Account",
+    addAccountTitle:"Add Account", addAccountBtn:"+ Add New Account", currentAccountLabel:"Current account", unknownAccount:"Unknown",
+    switchAccountTitle:"Switch Account",
+    confirmCancelBtn:"Cancel",
+    unfriendConfirmTitle:"Unfriend", unfriendConfirmMsg:"Are you sure you want to remove this person from your friends?",
+    logoutConfirmTitle:"Log Out", logoutConfirmMsg:"Are you sure you want to log out?",
+    deleteAccountConfirmTitle:"Delete Account", deleteAccountConfirmMsg:"This action can't be undone. Your account and username will be permanently deleted. Continue?",
+    deleteRoomConfirmMsg:"room will be permanently deleted. Are you sure?", leaveRoomConfirmMsg:"Are you sure you want to leave the room",
+    friendReqSent:"Friend request sent.", reAuthRequired:"This action requires logging in again. Log out and log back in.",
+    friendsListHidden:"This user keeps their friends list private.", cantMessageBlocked:"You can't message this user.",
+    youBlockedUser:" blocked.", sendFailedRetry:"Couldn't send, try again.", sendFailed:"Couldn't send.",
+    accountCreatedWelcome:"Account created, welcome!", accountCreateProblem:"There was a problem creating your account, try again.",
+    accountDeleted:"Account deleted.", accountDeleteFailed:"Couldn't delete account, try again.",
+    saveFailedRetry:"Couldn't save, try again.", postFailedRetry:"Couldn't post, try again.", profileUpdated:"Profile updated.",
+    chatOpenFailed:"Couldn't open chat, check your Firestore rules.", friendReqFailed:"Couldn't send request.",
+    sentToUserSuffix:": sent.", nowFriendsSuffix:" is now your friend.", joinedRoomSuffix:" joined the room.",
+    unblockedSuffix:" unblocked.", roomAlreadyExists:"A room with this name already exists.", roomCreateFailed:"Couldn't create room.", noRoomFound:"No room found.",
+    roomNameLenErr:"Room name must be 3-30 characters.", usernameLenErr:"Username must be 4-20 characters, letters/numbers/underscore only.",
+    passLenErr:"Password must be at least 6 characters.", passMismatchErr:"Passwords don't match.", usernameTakenErr:"This username is already taken.",
+    loginCredsRequired:"Username and password required.", wrongCreds:"Incorrect username or password.",
+    networkErr:"Connection error, try again.", tooManyAttempts:"Too many attempts, try again shortly.",
+    somethingWrong:"Something went wrong, try again.", loading:"Loading…", noTimestamp:"No timestamp",
+    shareToFriends:"Share with Friends", playAgain:"Play Again", startGame:"Start", tapToStart:"Tap to start",
+    gameOver:"Game Over", scoreLabel:"Score", bestLabel:"Best", flappyDotName:"Flappy Dot", shortSnakeName:"Short Snake",
+    congratsFull:"Congrats, the board is full!", shareScoreTitle:"Share Score"
+  }
+};
+function t(key){
+  const lang = (state.profile && state.profile.language) || currentLang || 'tr';
+  return (I18N[lang] && I18N[lang][key]) || I18N.tr[key] || key;
+}
+let currentLang = 'tr';
+function applyLanguage(lang){
+  currentLang = lang || 'tr';
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
+  });
+}
+
 const THEMES = {
   gold:   { a:'#c9a961', a2:'#e3c785', ad:'#8a744a' },
   rose:   { a:'#c97a8f', a2:'#e3a3b3', ad:'#8a4f5c' },
@@ -912,6 +1232,30 @@ function esc(str){
   return d.innerHTML;
 }
 function initials(name){ return (name||'?').slice(0,2).toUpperCase(); }
+function myInitials(){
+  const custom = state.profile && state.profile.avatarInitials;
+  return (custom && custom.trim()) ? custom.trim().toUpperCase().slice(0,2) : initials(state.profile ? state.profile.username : '');
+}
+function avatarGradient(colorKey){
+  const t = THEMES[colorKey] || THEMES.gold;
+  return `linear-gradient(155deg, ${t.a2}, ${t.ad})`;
+}
+function updateMyProfileHeader(){
+  const ini = myInitials();
+  const grad = avatarGradient(state.profile.avatarColor || 'gold');
+  ['headerAvatar','composerAvatar','settingsAvatar','myProfileAvatar'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = ini;
+    el.style.background = grad;
+  });
+  const bioEl = document.getElementById('myProfileBio');
+  if(bioEl){
+    const bio = (state.profile.bio||'').trim();
+    bioEl.textContent = bio;
+    bioEl.classList.toggle('hidden', !bio);
+  }
+}
 function timeAgo(ts){
   if(!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -948,7 +1292,7 @@ function showConfirm(title, msg, confirmLabel, onConfirm, danger){
         <div class="modal-title">${esc(title)}</div>
         <div style="font-size:13.5px;color:var(--text-dim);line-height:1.6;">${esc(msg)}</div>
         <div class="modal-actions">
-          <button class="btn btn-ghost" id="confirmCancel">Vazgeç</button>
+          <button class="btn btn-ghost" id="confirmCancel">${t('confirmCancelBtn')}</button>
           <button class="btn ${danger?'btn-danger':'btn-primary'}" id="confirmOk">${esc(confirmLabel)}</button>
         </div>
       </div>
@@ -969,8 +1313,8 @@ function openEditModal(title, currentText, maxLen, onSave){
           <textarea id="editModalTextarea" rows="4" maxlength="${maxLen}">${esc(currentText)}</textarea>
         </div>
         <div class="modal-actions">
-          <button class="btn btn-ghost" id="editCancel">Vazgeç</button>
-          <button class="btn btn-primary" id="editSave">Kaydet</button>
+          <button class="btn btn-ghost" id="editCancel">${t('confirmCancelBtn')}</button>
+          <button class="btn btn-primary" id="editSave">${t('saveBtn')}</button>
         </div>
       </div>
     </div>`;
@@ -984,18 +1328,28 @@ function openEditModal(title, currentText, maxLen, onSave){
   };
 }
 
-function openMsgActionSheet(onEdit, onDelete){
+function openMsgActionSheet(onEdit, onDelete, infoText){
   const root = document.getElementById('modalRoot');
   root.innerHTML = `
     <div class="modal-overlay" id="actionSheetOverlay">
       <div class="modal-card" style="padding:10px;">
-        <button class="btn btn-ghost" id="asEdit" style="margin-bottom:8px;">Düzenle</button>
-        <button class="btn btn-danger" id="asDelete">Sil</button>
+        ${infoText ? `<div style="padding:8px 13px 4px;font-size:11.5px;color:var(--text-faint);">${esc(infoText)}</div>` : ''}
+        <button class="btn btn-ghost" id="asEdit" style="margin-bottom:8px;">${t('editBtn')}</button>
+        <button class="btn btn-danger" id="asDelete">${t('deleteBtn')}</button>
       </div>
     </div>`;
   document.getElementById('actionSheetOverlay').onclick = (e)=>{ if(e.target.id==='actionSheetOverlay') closeModal(); };
   document.getElementById('asEdit').onclick = ()=>{ closeModal(); onEdit(); };
   document.getElementById('asDelete').onclick = ()=>{ closeModal(); onDelete(); };
+}
+function formatMsgTimestamp(ts){
+  if(!ts || !ts.toDate) return '';
+  const d = ts.toDate();
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const timeStr = d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+  if(sameDay) return timeStr;
+  return d.toLocaleDateString('tr-TR', {day:'2-digit', month:'2-digit', year:'numeric'}) + ' ' + timeStr;
 }
 function attachLongPress(el, callback){
   let timer=null, moved=false, sx=0, sy=0;
@@ -1053,6 +1407,19 @@ function playPing(){
     o.start(); o.stop(ctx.currentTime+0.26);
   }catch(e){}
 }
+function playGameSound(freq){
+  if(!state.profile || state.profile.gameSoundEnabled === false) return;
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type='triangle'; o.frequency.value = freq || 660;
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.09, ctx.currentTime+0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.18);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime+0.19);
+  }catch(e){}
+}
 
 /* =========================================================
    BACK BUTTON HANDLING (Android/iOS gesture -> browser history)
@@ -1075,7 +1442,7 @@ window.addEventListener('popstate', ()=>{
 /* =========================================================
    AUTH — TABS & VALIDATION
 ========================================================= */
-const USERNAME_RE = /^[a-zA-Z0-9_]{6,20}$/;
+const USERNAME_RE = /^[a-zA-Z0-9_]{4,20}$/;
 
 document.getElementById('tabLoginBtn').onclick = ()=> switchAuthTab('login');
 document.getElementById('tabSignupBtn').onclick = ()=> switchAuthTab('signup');
@@ -1098,54 +1465,37 @@ document.getElementById('signupForm').addEventListener('submit', async (e)=>{
   const btn = document.getElementById('signupSubmitBtn');
 
   if(!USERNAME_RE.test(username)){
-    showAuthError('signupError', 'Kullanıcı adı 6-20 karakter olmalı ve sadece harf, rakam, alt çizgi içermeli.');
+    showAuthError('signupError', t('usernameLenErr'));
     return;
   }
   if(pass.length < 6){
-    showAuthError('signupError', 'Şifre en az 6 karakter olmalı.');
+    showAuthError('signupError', t('passLenErr'));
     return;
   }
   if(pass !== pass2){
-    showAuthError('signupError', 'Şifreler eşleşmiyor.');
+    showAuthError('signupError', t('passMismatchErr'));
     return;
   }
 
-  btn.disabled = true; btn.textContent = 'Kontrol ediliyor…';
+  btn.disabled = true; btn.textContent = t('signupBtnChecking');
   try{
     const usernameLower = username.toLowerCase();
     const takenDoc = await db.collection('usernames').doc(usernameLower).get();
     if(takenDoc.exists){
-      showAuthError('signupError', 'Bu kullanıcı adı zaten alınmış.');
-      btn.disabled = false; btn.textContent = 'Hesap Oluştur';
+      showAuthError('signupError', t('usernameTakenErr'));
+      btn.disabled = false; btn.textContent = t('signupBtn');
       return;
     }
     const cred = await auth.createUserWithEmailAndPassword(usernameLower + EMAIL_DOMAIN, pass);
     const uid = cred.user.uid;
     const batch = db.batch();
     batch.set(db.collection('usernames').doc(usernameLower), { uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-    batch.set(db.collection('users').doc(uid), {
-      username: username,
-      usernameLower: usernameLower,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      allowNonFriendMessages: false,
-      hideProfileFromSearch: false,
-      hideMessagePreview: false,
-      soundEnabled: true,
-      showFriendsList: false,
-      showJoinedRooms: true,
-      showMyPosts: true,
-      lightMode: false,
-      theme: 'gold',
-      blocked: [],
-      lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-      flappyHighScore: 0,
-      snakeHighScore: 0
-    });
+    batch.set(db.collection('users').doc(uid), Object.assign({ username: username, usernameLower: usernameLower }, defaultProfileFields()));
     await batch.commit();
-    toast('Hesap oluşturuldu, hoş geldin!');
+    toast(t('accountCreatedWelcome'));
   }catch(err){
     showAuthError('signupError', friendlyAuthError(err));
-    btn.disabled = false; btn.textContent = 'Hesap Oluştur';
+    btn.disabled = false; btn.textContent = t('signupBtn');
   }
 });
 
@@ -1156,73 +1506,216 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   const pass = document.getElementById('loginPassword').value;
   const btn = document.getElementById('loginSubmitBtn');
   if(!username || !pass){
-    showAuthError('loginError', 'Kullanıcı adı ve şifre gerekli.');
+    showAuthError('loginError', t('loginCredsRequired'));
     return;
   }
-  btn.disabled = true; btn.textContent = 'Giriş yapılıyor…';
+  btn.disabled = true; btn.textContent = t('loginBtnLoading');
   try{
     await auth.signInWithEmailAndPassword(username + EMAIL_DOMAIN, pass);
   }catch(err){
     showAuthError('loginError', friendlyAuthError(err));
-    btn.disabled = false; btn.textContent = 'Giriş Yap';
+    btn.disabled = false; btn.textContent = t('loginBtn');
   }
 });
 
 function friendlyAuthError(err){
   const c = err && err.code;
-  if(c === 'auth/user-not-found' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') return 'Kullanıcı adı veya şifre hatalı.';
-  if(c === 'auth/wrong-password') return 'Kullanıcı adı veya şifre hatalı.';
-  if(c === 'auth/email-already-in-use') return 'Bu kullanıcı adı zaten alınmış.';
-  if(c === 'auth/weak-password') return 'Şifre en az 6 karakter olmalı.';
-  if(c === 'auth/network-request-failed') return 'Bağlantı hatası, tekrar dene.';
-  if(c === 'auth/too-many-requests') return 'Çok fazla deneme yapıldı, biraz sonra tekrar dene.';
-  return 'Bir şeyler ters gitti, tekrar dene.';
+  if(c === 'auth/user-not-found' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') return t('wrongCreds');
+  if(c === 'auth/wrong-password') return t('wrongCreds');
+  if(c === 'auth/email-already-in-use') return t('usernameTakenErr');
+  if(c === 'auth/weak-password') return t('passLenErr');
+  if(c === 'auth/network-request-failed') return t('networkErr');
+  if(c === 'auth/too-many-requests') return t('tooManyAttempts');
+  return t('somethingWrong');
 }
 
 /* =========================================================
-   AUTH STATE
+   AUTH STATE — multi-account aware
 ========================================================= */
-if(configOk){
-  auth.onAuthStateChanged(async (user)=>{
+async function fetchProfileWithRetry(dbInst, uid){
+  let doc = await dbInst.collection('users').doc(uid).get();
+  let tries = 0;
+  while(!doc.exists && tries < 8){
+    await new Promise(r=>setTimeout(r, 350));
+    doc = await dbInst.collection('users').doc(uid).get();
+    tries++;
+  }
+  return doc;
+}
+
+function attachAccountAuthListener(appName){
+  const inst = getFirebaseAppInstance(appName);
+  auth = inst.auth; db = inst.db; currentAppName = appName;
+  inst.auth.onAuthStateChanged(async (user)=>{
+    if(currentAppName !== appName) return;
     document.getElementById('loadingScreen').classList.add('hidden');
     if(user){
       state.uid = user.uid;
-      // Yeni hesaplarda Firestore profil kaydı auth ile aynı anda değil,
-      // hemen ardından oluşur. Bu yüzden birkaç kez kısa aralıklarla tekrar deniyoruz.
-      let doc = await db.collection('users').doc(user.uid).get();
-      let tries = 0;
-      while(!doc.exists && tries < 8){
-        await new Promise(r=>setTimeout(r, 350));
-        doc = await db.collection('users').doc(user.uid).get();
-        tries++;
-      }
+      const doc = await fetchProfileWithRetry(db, user.uid);
       if(!doc.exists){
-        toast('Hesap oluşturulurken bir sorun oluştu, tekrar dene.');
+        toast(t('accountCreateProblem'));
         await auth.signOut();
         return;
       }
       state.profile = doc.data();
+      upsertAccountRecord(appName, user.uid, state.profile.username);
       enterApp();
     }else{
       teardownListeners();
       state.uid = null; state.profile = null;
       document.getElementById('appScreen').classList.add('hidden');
       document.getElementById('authScreen').classList.remove('hidden');
+      switchAuthTab(accountsList.length === 0 ? 'signup' : 'login');
       document.getElementById('loginForm').reset();
       document.getElementById('signupForm').reset();
     }
   });
 }
 
+async function switchToAccount(appName){
+  teardownListeners();
+  closeThread(false); closeRoom(false); closeOtherProfile(false);
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('loadingScreen').classList.remove('hidden');
+  const inst = getFirebaseAppInstance(appName);
+  auth = inst.auth; db = inst.db; currentAppName = appName;
+  saveAccountsToStorage(appName);
+  await new Promise(resolve=>{
+    const unsub = inst.auth.onAuthStateChanged(user=>{ unsub(); resolve(user); });
+  });
+  const user = inst.auth.currentUser;
+  document.getElementById('loadingScreen').classList.add('hidden');
+  if(user){
+    state.uid = user.uid;
+    const doc = await fetchProfileWithRetry(db, user.uid);
+    if(doc.exists){
+      state.profile = doc.data();
+      upsertAccountRecord(appName, user.uid, state.profile.username);
+      enterApp();
+      return;
+    }
+  }
+  document.getElementById('authScreen').classList.remove('hidden');
+  switchAuthTab('login');
+  attachAccountAuthListener(appName);
+}
+
+function openAddAccountModal(){
+  accountCounter++;
+  const newAppName = 'acct_'+accountCounter;
+  saveAccountsToStorage();
+  const inst = getFirebaseAppInstance(newAppName);
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="addAccountOverlay">
+      <div class="modal-card">
+        <div class="modal-title">${t('addAccountTitle')}</div>
+        <div class="auth-tabs" style="margin-bottom:18px;">
+          <button type="button" class="active" id="aaTabLogin">${t('loginTab')}</button>
+          <button type="button" id="aaTabSignup">${t('signupTab')}</button>
+        </div>
+        <div class="auth-error" id="aaLoginError"></div>
+        <form id="aaLoginForm" autocomplete="off">
+          <div class="field"><label>${t('usernameLabel')}</label><input type="text" id="aaLoginUsername" maxlength="20" autocomplete="off"></div>
+          <div class="field"><label>${t('passwordLabel')}</label><input type="password" id="aaLoginPassword" autocomplete="off"></div>
+          <button type="submit" class="btn btn-primary" id="aaLoginSubmit">${t('loginBtn')}</button>
+        </form>
+        <form id="aaSignupForm" class="hidden" autocomplete="off">
+          <div class="field"><label>${t('usernameLabel')}</label><input type="text" id="aaSignupUsername" maxlength="20" autocomplete="off"><div class="field-hint">${t('usernameHint')}</div></div>
+          <div class="field"><label>${t('passwordLabel')}</label><input type="password" id="aaSignupPassword" autocomplete="off"></div>
+          <div class="field"><label>${t('passwordConfirmLabel')}</label><input type="password" id="aaSignupPassword2" autocomplete="off"></div>
+          <div class="auth-error" id="aaSignupError"></div>
+          <button type="submit" class="btn btn-primary" id="aaSignupSubmit">${t('signupBtn')}</button>
+        </form>
+      </div>
+    </div>`;
+  document.getElementById('addAccountOverlay').onclick = (e)=>{ if(e.target.id==='addAccountOverlay') closeModal(); };
+  const tabLogin = document.getElementById('aaTabLogin'), tabSignup = document.getElementById('aaTabSignup');
+  const loginForm = document.getElementById('aaLoginForm'), signupForm = document.getElementById('aaSignupForm');
+  tabLogin.onclick = ()=>{ tabLogin.classList.add('active'); tabSignup.classList.remove('active'); loginForm.classList.remove('hidden'); signupForm.classList.add('hidden'); };
+  tabSignup.onclick = ()=>{ tabSignup.classList.add('active'); tabLogin.classList.remove('active'); signupForm.classList.remove('hidden'); loginForm.classList.add('hidden'); };
+
+  loginForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const uname = document.getElementById('aaLoginUsername').value.trim().toLowerCase();
+    const pass = document.getElementById('aaLoginPassword').value;
+    const errEl = document.getElementById('aaLoginError');
+    errEl.classList.remove('show');
+    if(!uname || !pass){ errEl.textContent=t('loginCredsRequired'); errEl.classList.add('show'); return; }
+    const btn = document.getElementById('aaLoginSubmit'); btn.disabled=true; btn.textContent=t('loginBtnLoading');
+    try{
+      await inst.auth.signInWithEmailAndPassword(uname+EMAIL_DOMAIN, pass);
+      closeModal();
+      await switchToAccount(newAppName);
+    }catch(err){
+      errEl.textContent = friendlyAuthError(err); errEl.classList.add('show');
+      btn.disabled=false; btn.textContent=t('loginBtn');
+    }
+  });
+  signupForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const username = document.getElementById('aaSignupUsername').value.trim();
+    const pass = document.getElementById('aaSignupPassword').value;
+    const pass2 = document.getElementById('aaSignupPassword2').value;
+    const errEl = document.getElementById('aaSignupError');
+    errEl.classList.remove('show');
+    if(!USERNAME_RE.test(username)){ errEl.textContent=t('usernameLenErr'); errEl.classList.add('show'); return; }
+    if(pass.length<6){ errEl.textContent=t('passLenErr'); errEl.classList.add('show'); return; }
+    if(pass!==pass2){ errEl.textContent=t('passMismatchErr'); errEl.classList.add('show'); return; }
+    const btn = document.getElementById('aaSignupSubmit'); btn.disabled=true; btn.textContent=t('signupBtnChecking');
+    try{
+      const usernameLower = username.toLowerCase();
+      const takenDoc = await inst.db.collection('usernames').doc(usernameLower).get();
+      if(takenDoc.exists){ errEl.textContent=t('usernameTakenErr'); errEl.classList.add('show'); btn.disabled=false; btn.textContent=t('signupBtn'); return; }
+      const cred = await inst.auth.createUserWithEmailAndPassword(usernameLower+EMAIL_DOMAIN, pass);
+      const uid = cred.user.uid;
+      const batch = inst.db.batch();
+      batch.set(inst.db.collection('usernames').doc(usernameLower), { uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      batch.set(inst.db.collection('users').doc(uid), Object.assign({ username, usernameLower }, defaultProfileFields()));
+      await batch.commit();
+      closeModal();
+      await switchToAccount(newAppName);
+    }catch(err){
+      errEl.textContent = friendlyAuthError(err); errEl.classList.add('show');
+      btn.disabled=false; btn.textContent=t('signupBtn');
+    }
+  });
+}
+
+function openSwitchAccountModal(){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="switchAccOverlay">
+      <div class="modal-card">
+        <div class="modal-title">${t('switchAccountTitle')}</div>
+        <div id="switchAccList"></div>
+        <button class="btn btn-ghost btn-sm" id="addAccountRowBtn" style="margin-top:10px;width:100%;">${t('addAccountBtn')}</button>
+      </div>
+    </div>`;
+  document.getElementById('switchAccOverlay').onclick = (e)=>{ if(e.target.id==='switchAccOverlay') closeModal(); };
+  const listEl = document.getElementById('switchAccList');
+  listEl.innerHTML = accountsList.map(a=>`
+    <div class="friend-row switch-acc-row" data-app="${a.appName}" style="cursor:pointer;${a.appName===currentAppName?'background:rgba(201,169,97,0.1);border-radius:12px;':''}">
+      <div class="avatar sm">${esc(initials(a.username||'?'))}</div>
+      <div class="meta">${esc(a.username||t('unknownAccount'))}</div>
+      ${a.appName===currentAppName ? '<span style="color:var(--accent-2);font-size:11.5px;font-weight:700;">'+t('currentAccountLabel')+'</span>' : ''}
+    </div>`).join('');
+  listEl.querySelectorAll('.switch-acc-row').forEach(row=>{
+    row.onclick = async ()=>{
+      const appName = row.dataset.app;
+      if(appName === currentAppName){ closeModal(); return; }
+      closeModal();
+      await switchToAccount(appName);
+    };
+  });
+  document.getElementById('addAccountRowBtn').onclick = ()=>{ closeModal(); openAddAccountModal(); };
+}
+
 function enterApp(){
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
-  const ini = initials(state.profile.username);
-  document.getElementById('headerAvatar').textContent = ini;
-  document.getElementById('composerAvatar').textContent = ini;
-  document.getElementById('settingsAvatar').textContent = ini;
   document.getElementById('settingsUsername').textContent = state.profile.username;
-  document.getElementById('myProfileAvatar').textContent = ini;
   document.getElementById('myProfileName').textContent = state.profile.username;
   const joined = state.profile.createdAt && state.profile.createdAt.toDate ? state.profile.createdAt.toDate().toLocaleDateString('tr-TR') : '';
   document.getElementById('settingsJoined').textContent = joined ? ('Katılım: ' + joined) : '';
@@ -1232,11 +1725,19 @@ function enterApp(){
   document.getElementById('hideFromSearchSwitch').classList.toggle('on', state.profile.hideProfileFromSearch === true);
   document.getElementById('hidePreviewSwitch').classList.toggle('on', state.profile.hideMessagePreview === true);
   document.getElementById('soundSwitch').classList.toggle('on', state.profile.soundEnabled !== false);
+  document.getElementById('msgBannerSwitch').classList.toggle('on', state.profile.showMsgBanner !== false);
   document.getElementById('showFriendsSwitch').classList.toggle('on', state.profile.showFriendsList === true);
   document.getElementById('showRoomsSwitch').classList.toggle('on', state.profile.showJoinedRooms !== false);
   document.getElementById('showPostsSwitch').classList.toggle('on', state.profile.showMyPosts !== false);
   document.getElementById('lightModeSwitch').classList.toggle('on', state.profile.lightMode === true);
   document.body.classList.toggle('light', state.profile.lightMode === true);
+  document.getElementById('hideOnlineSwitch').classList.toggle('on', state.profile.hideOnlineStatus === true);
+  document.getElementById('gameSoundSwitch').classList.toggle('on', state.profile.gameSoundEnabled !== false);
+  document.getElementById('largeTextSwitch').classList.toggle('on', state.profile.largeText === true);
+  document.body.classList.toggle('large-text', state.profile.largeText === true);
+  applyLanguage(state.profile.language || 'tr');
+  updateLangOptButtons();
+  updateMyProfileHeader();
   renderBlockedList();
   switchView('home', false);
   attachHomeFeed();
@@ -1270,7 +1771,8 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
   });
 });
 document.getElementById('headerAvatarBtn').addEventListener('click', ()=> switchView('profile'));
-const VIEW_TITLES = { home:'Ana Sayfa', messages:'Mesajlar', rooms:'Odalar', profile:'Profil', games:'Oyunlar', settings:'Ayarlar' };
+document.getElementById('headerBrandBtn').addEventListener('click', ()=> switchView('home'));
+const VIEW_TITLES = { home:'navHome', messages:'navMessages', rooms:'navRooms', profile:'navProfile', games:'navGames', settings:'navSettings' };
 function switchView(view, push){
   if(push !== false && view !== 'home') pushAwayIfNeeded();
   if(view === 'home') awayFromHome = false;
@@ -1279,7 +1781,7 @@ function switchView(view, push){
   document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
   document.getElementById(view+'View').classList.remove('hidden');
   document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.view===view));
-  document.getElementById('headerTitle').textContent = VIEW_TITLES[view];
+  document.getElementById('headerTitle').textContent = t(VIEW_TITLES[view]);
   if(view !== 'messages'){ closeThread(false); closeOtherProfile(false); }
   if(view !== 'rooms'){ closeRoom(false); }
 }
@@ -1301,6 +1803,8 @@ document.getElementById('submitPostBtn').addEventListener('click', async ()=>{
     await db.collection('posts').add({
       uid: state.uid,
       username: state.profile.username,
+      avatarInitials: state.profile.avatarInitials || '',
+      avatarColor: state.profile.avatarColor || 'gold',
       text: text,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: [],
@@ -1309,7 +1813,7 @@ document.getElementById('submitPostBtn').addEventListener('click', async ()=>{
     });
     ta.value = '';
     document.getElementById('postCharCount').textContent = '0/500';
-  }catch(err){ toast('Paylaşılamadı, tekrar dene.'); }
+  }catch(err){ toast(t('postFailedRetry')); }
   btn.disabled = false;
 });
 
@@ -1319,7 +1823,7 @@ function attachHomeFeed(){
     .onSnapshot(snap=>{
       const list = document.getElementById('postsList');
       if(snap.empty){
-        list.innerHTML = `<div class="empty-state"><div class="icon-wrap">✦</div><h3>Henüz paylaşım yok</h3><p>İlk paylaşımı sen yap.</p></div>`;
+        list.innerHTML = `<div class="empty-state"><div class="icon-wrap">✦</div><h3>${t('emptyPostsTitle')}</h3><p>${t('emptyPostsDesc')}</p></div>`;
         return;
       }
       list.innerHTML = '';
@@ -1328,16 +1832,18 @@ function attachHomeFeed(){
         state.postsCache[doc.id] = p;
         const liked = (p.likes||[]).includes(state.uid);
         const mine = p.uid === state.uid;
+        const postAvatarIni = (p.avatarInitials && p.avatarInitials.trim()) ? p.avatarInitials.trim().toUpperCase().slice(0,2) : initials(p.username);
+        const postAvatarStyle = `style="background:${avatarGradient(p.avatarColor||'gold')}"`;
         const el = document.createElement('div');
         el.className = 'post';
         el.innerHTML = `
           <div class="post-head">
-            <div class="avatar sm">${esc(initials(p.username))}</div>
+            <div class="avatar sm" ${postAvatarStyle}>${esc(postAvatarIni)}</div>
             <div class="post-body">
               <div class="post-name-row">
                 <span class="post-username">${esc(p.username)}</span>
                 <span class="post-time">· ${timeAgo(p.createdAt)}</span>
-                ${p.edited?'<span class="post-edited">düzenlendi</span>':''}
+                ${p.edited?'<span class="post-edited">'+t('editedTag')+'</span>':''}
 
               </div>
               <div class="post-text">${esc(p.text)}</div>
@@ -1358,10 +1864,10 @@ function attachHomeFeed(){
           </div>`;
         if(mine){
           attachLongPress(el, ()=> openMsgActionSheet(
-            ()=> openEditModal('Paylaşımı Düzenle', p.text, 500, async (newText)=>{
+            ()=> openEditModal(t('editPostTitle'), p.text, 500, async (newText)=>{
               await db.collection('posts').doc(doc.id).update({ text:newText, edited:true });
             }),
-            ()=> showConfirm('Paylaşımı Sil', 'Bu paylaşım kalıcı olarak silinecek.', 'Sil', async ()=>{
+            ()=> showConfirm(t('deletePostTitle'), t('deletePostMsg'), t('deleteBtn'), async ()=>{
               await db.collection('posts').doc(doc.id).delete();
             }, true)
           ));
@@ -1375,12 +1881,12 @@ document.getElementById('postsList').addEventListener('click', (e)=>{
   if(handleDotsClick(e,
     (id)=>{
       const textEl = e.target.closest('.post').querySelector('.post-text');
-      openEditModal('Paylaşımı Düzenle', textEl.textContent, 500, async (newText)=>{
+      openEditModal(t('editPostTitle'), textEl.textContent, 500, async (newText)=>{
         await db.collection('posts').doc(id).update({ text:newText, edited:true });
       });
     },
     (id)=>{
-      showConfirm('Paylaşımı Sil', 'Bu paylaşım kalıcı olarak silinecek.', 'Sil', async ()=>{
+      showConfirm(t('deletePostTitle'), t('deletePostMsg'), t('deleteBtn'), async ()=>{
         await db.collection('posts').doc(id).delete();
       }, true);
     }
@@ -1401,14 +1907,14 @@ function openSharePostModal(postId){
   root.innerHTML = `
     <div class="modal-overlay" id="shareOverlay">
       <div class="modal-card">
-        <div class="modal-title">Paylaş</div>
+        <div class="modal-title">${t('sharePostTitle')}</div>
         <div id="shareFriendsList">${friends.length===0
-          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div>'
+          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">'+t('shareFriendsEmpty')+'</div>'
           : friends.map(f=>`
             <div class="friend-row">
               <div class="avatar sm">${esc(initials(f.username))}</div>
               <div class="meta">${esc(f.username)}</div>
-              <button class="btn btn-primary btn-sm share-send-btn" data-uid="${f.uid}" data-name="${esc(f.username)}">Gönder</button>
+              <button class="btn btn-primary btn-sm share-send-btn" data-uid="${f.uid}" data-name="${esc(f.username)}">${t('sendBtn')}</button>
             </div>`).join('')}
         </div>
       </div>
@@ -1417,14 +1923,14 @@ function openSharePostModal(postId){
   document.getElementById('shareFriendsList').addEventListener('click', async (e)=>{
     const btn = e.target.closest('.share-send-btn');
     if(!btn) return;
-    btn.disabled = true; btn.textContent = 'Gönderiliyor…';
+    btn.disabled = true; btn.textContent = t('sending');
     const ok = await sharePostToFriend(post, btn.dataset.uid, btn.dataset.name);
     if(ok){
       closeModal();
       switchView('messages');
       openChat(chatIdFor(state.uid, btn.dataset.uid), btn.dataset.uid, btn.dataset.name);
     }else{
-      btn.disabled = false; btn.textContent = 'Gönder';
+      btn.disabled = false; btn.textContent = t('sendBtn');
     }
   });
 }
@@ -1454,10 +1960,10 @@ async function sharePostToFriend(post, friendUid, friendUsername){
       lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       messageCount: firebase.firestore.FieldValue.increment(1)
     });
-    toast(friendUsername + ' kişisine gönderildi.');
+    toast(friendUsername + t('sentToUserSuffix'));
     return true;
   }catch(e){
-    toast('Gönderilemedi, tekrar dene.');
+    toast(t('sendFailedRetry'));
     return false;
   }
 }
@@ -1474,10 +1980,10 @@ function openComments(postId){
   root.innerHTML = `
     <div class="modal-overlay" id="commentsOverlay">
       <div class="modal-card">
-        <div class="modal-title">Yorumlar</div>
-        <div id="commentsList"><div class="sub" style="color:var(--text-faint);font-size:13px;">Yükleniyor…</div></div>
+        <div class="modal-title">${t('commentsTitle')}</div>
+        <div id="commentsList"><div class="sub" style="color:var(--text-faint);font-size:13px;">${t('loading')}</div></div>
         <div class="comment-input-row">
-          <input type="text" id="newCommentInput" placeholder="Yorum yaz…" maxlength="300">
+          <input type="text" id="newCommentInput" placeholder="${t('commentPlaceholder')}" maxlength="300">
           <button class="icon-btn" id="sendCommentBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
         </div>
       </div>
@@ -1488,7 +1994,7 @@ function openComments(postId){
     .onSnapshot(snap=>{
       const box = document.getElementById('commentsList');
       if(!box) return;
-      if(snap.empty){ box.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz yorum yok.</div>'; return; }
+      if(snap.empty){ box.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;">'+t('noComments')+'</div>'; return; }
       box.innerHTML = '';
       snap.forEach(d=>{
         const c = d.data();
@@ -1514,6 +2020,81 @@ function openComments(postId){
 /* =========================================================
    FRIENDS
 ========================================================= */
+function openEditProfileModal(){
+  const root = document.getElementById('modalRoot');
+  const currentIni = state.profile.avatarInitials || '';
+  const currentColor = state.profile.avatarColor || 'gold';
+  const currentBio = state.profile.bio || '';
+  root.innerHTML = `
+    <div class="modal-overlay" id="editProfileOverlay">
+      <div class="modal-card">
+        <div class="modal-title">${t('editProfileTitle')}</div>
+        <div style="display:flex;justify-content:center;margin-bottom:18px;">
+          <div class="avatar lg" id="epAvatarPreview">•</div>
+        </div>
+        <div class="field">
+          <label>${t('avatarInitialsLabel')}</label>
+          <input type="text" id="epInitials" maxlength="2" placeholder="${esc(initials(state.profile.username))}" value="${esc(currentIni)}">
+          <div class="field-hint">${t('avatarInitialsHint')}</div>
+        </div>
+        <div class="field">
+          <label>${t('avatarColorLabel')}</label>
+          <div class="theme-swatches" id="epColorSwatches">
+            <div class="swatch" data-c="gold" style="background:#c9a961"></div>
+            <div class="swatch" data-c="rose" style="background:#c97a8f"></div>
+            <div class="swatch" data-c="sage" style="background:#84b899"></div>
+            <div class="swatch" data-c="azure" style="background:#7a9bc9"></div>
+            <div class="swatch" data-c="violet" style="background:#a389c9"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>${t('bioLabel')}</label>
+          <textarea id="epBio" rows="3" maxlength="160" placeholder="${t('bioPlaceholder')}">${esc(currentBio)}</textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="epCancel">${t('cancelBtn')}</button>
+          <button class="btn btn-primary" id="epSave">${t('saveBtn')}</button>
+        </div>
+      </div>
+    </div>`;
+  let selectedColor = currentColor;
+  function refreshPreview(){
+    const iniInput = document.getElementById('epInitials').value.trim();
+    const ini = iniInput ? iniInput.toUpperCase().slice(0,2) : initials(state.profile.username);
+    const preview = document.getElementById('epAvatarPreview');
+    preview.textContent = ini;
+    preview.style.background = avatarGradient(selectedColor);
+  }
+  document.querySelectorAll('#epColorSwatches .swatch').forEach(sw=>{
+    sw.classList.toggle('active', sw.dataset.c === selectedColor);
+    sw.onclick = ()=>{
+      selectedColor = sw.dataset.c;
+      document.querySelectorAll('#epColorSwatches .swatch').forEach(s=>s.classList.toggle('active', s.dataset.c===selectedColor));
+      refreshPreview();
+    };
+  });
+  document.getElementById('epInitials').addEventListener('input', refreshPreview);
+  refreshPreview();
+  document.getElementById('epCancel').onclick = closeModal;
+  document.getElementById('editProfileOverlay').onclick = (e)=>{ if(e.target.id==='editProfileOverlay') closeModal(); };
+  document.getElementById('epSave').onclick = async ()=>{
+    const newIni = document.getElementById('epInitials').value.trim().toUpperCase().slice(0,2);
+    const newBio = document.getElementById('epBio').value.trim();
+    try{
+      await db.collection('users').doc(state.uid).update({
+        avatarInitials: newIni, avatarColor: selectedColor, bio: newBio
+      });
+      state.profile.avatarInitials = newIni;
+      state.profile.avatarColor = selectedColor;
+      state.profile.bio = newBio;
+      updateMyProfileHeader();
+      closeModal();
+      toast(t('profileUpdated'));
+    }catch(e){ toast(t('saveFailedRetry')); }
+  };
+}
+document.getElementById('editProfileBtn').addEventListener('click', openEditProfileModal);
+
 function attachMyFriends(){
   if(state.unsub.friends) return;
   state.unsub.friends = db.collection('friendships').where('users','array-contains', state.uid)
@@ -1531,13 +2112,13 @@ function attachMyFriends(){
       document.getElementById('myFriendCount').textContent = list.length;
       const box = document.getElementById('friendsList');
       if(list.length === 0){
-        box.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div>';
+        box.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;">'+t('noFriendsYet')+'</div>';
       }else{
         box.innerHTML = list.map(f=>`
           <div class="friend-row">
             <div class="avatar sm">${esc(initials(f.username))}</div>
             <div class="meta">${esc(f.username)}</div>
-            <button class="btn btn-ghost btn-sm unfriend-btn" data-uid="${f.uid}">Çıkar</button>
+            <button class="btn btn-ghost btn-sm unfriend-btn" data-uid="${f.uid}">${t('removeBtn')}</button>
           </div>`).join('');
       }
       renderChatsAndRequests();
@@ -1548,7 +2129,7 @@ document.getElementById('friendsList').addEventListener('click', (e)=>{
   const btn = e.target.closest('.unfriend-btn');
   if(!btn) return;
   const otherUid = btn.dataset.uid;
-  showConfirm('Arkadaşlıktan Çıkar', 'Bu kişiyi arkadaş listenden kaldırmak istediğine emin misin?', 'Çıkar', async ()=>{
+  showConfirm(t('unfriendConfirmTitle'), t('unfriendConfirmMsg'), t('removeBtn'), async ()=>{
     await db.collection('friendships').doc(pairId(state.uid, otherUid)).delete();
   }, true);
 });
@@ -1568,10 +2149,10 @@ function attachIncomingFriendRequests(){
       section.classList.toggle('hidden', count===0);
       document.getElementById('friendReqList').innerHTML = state.incomingFriendReqs.map(r=>`
         <div class="req-card">
-          <div class="req-top"><div class="avatar sm">${esc(initials(r.fromUsername))}</div><div class="meta"><div class="uname">${esc(r.fromUsername)}</div><div class="usub">arkadaşlık isteği gönderdi</div></div></div>
+          <div class="req-top"><div class="avatar sm">${esc(initials(r.fromUsername))}</div><div class="meta"><div class="uname">${esc(r.fromUsername)}</div><div class="usub">${t('friendReqReceived')}</div></div></div>
           <div class="req-actions">
-            <button class="btn btn-ghost btn-sm decline-friend" data-id="${r.id}">Reddet</button>
-            <button class="btn btn-primary btn-sm accept-friend" data-id="${r.id}" data-uid="${r.from}" data-name="${esc(r.fromUsername)}">Kabul Et</button>
+            <button class="btn btn-ghost btn-sm decline-friend" data-id="${r.id}">${t('rejectBtn')}</button>
+            <button class="btn btn-primary btn-sm accept-friend" data-id="${r.id}" data-uid="${r.from}" data-name="${esc(r.fromUsername)}">${t('acceptBtn')}</button>
           </div>
         </div>`).join('');
     });
@@ -1587,7 +2168,7 @@ document.getElementById('friendReqList').addEventListener('click', async (e)=>{
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     await db.collection('friendRequests').doc(acc.dataset.id).delete();
-    toast(otherName + ' artık arkadaşın.');
+    toast(otherName + t('nowFriendsSuffix'));
   }
   if(dec){
     await db.collection('friendRequests').doc(dec.dataset.id).delete();
@@ -1602,8 +2183,8 @@ async function sendFriendRequest(toUid, toUsername){
       to: toUid, toUsername: toUsername,
       status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    toast('Arkadaşlık isteği gönderildi.');
-  }catch(e){ toast('İstek gönderilemedi.'); }
+    toast(t('friendReqSent'));
+  }catch(e){ toast(t('friendReqFailed')); }
 }
 
 /* =========================================================
@@ -1628,12 +2209,12 @@ document.getElementById('userSearchInput').addEventListener('input', (e)=>{
         any = true;
         const row = document.createElement('div');
         row.className = 'user-row';
-        row.innerHTML = `<div class="avatar sm">${esc(initials(u.username))}</div><div class="meta"><div class="uname">${esc(u.username)}</div><div class="usub">Profili görüntüle</div></div>`;
+        row.innerHTML = `<div class="avatar sm">${esc(initials(u.username))}</div><div class="meta"><div class="uname">${esc(u.username)}</div><div class="usub">${t('viewProfile')}</div></div>`;
         row.onclick = ()=> openOtherProfile(doc.id, u.username);
         box.appendChild(row);
       });
       box.classList.toggle('hidden', !any);
-      if(!any) box.innerHTML = '<div class="sub" style="padding:10px 4px;color:var(--text-faint);font-size:13px;">Kullanıcı bulunamadı.</div>';
+      if(!any) box.innerHTML = '<div class="sub" style="padding:10px 4px;color:var(--text-faint);font-size:13px;">'+t('noUserFound')+'</div>';
       box.classList.remove('hidden');
     }catch(e){}
   }, 300);
@@ -1655,7 +2236,18 @@ async function openOtherProfile(otherUid, otherUsername){
   pushAwayIfNeeded();
 
   let otherUserData = {};
-  db.collection('users').doc(otherUid).get().then(d=>{ otherUserData = d.data() || {}; renderExtras(); });
+  db.collection('users').doc(otherUid).get().then(d=>{
+    otherUserData = d.data() || {};
+    renderExtras();
+    const ini = (otherUserData.avatarInitials && otherUserData.avatarInitials.trim()) ? otherUserData.avatarInitials.trim().toUpperCase().slice(0,2) : initials(otherUsername);
+    const avEl = document.getElementById('otherProfileAvatar');
+    avEl.textContent = ini;
+    avEl.style.background = avatarGradient(otherUserData.avatarColor || 'gold');
+    const bioEl = document.getElementById('otherProfileBio');
+    const bio = (otherUserData.bio||'').trim();
+    bioEl.textContent = bio;
+    bioEl.classList.toggle('hidden', !bio);
+  });
 
   db.collection('friendships').where('users','array-contains', otherUid).get().then(snap=>{
     const arr = [];
@@ -1666,13 +2258,13 @@ async function openOtherProfile(otherUid, otherUsername){
     });
     document.getElementById('otherProfileFriendCount').textContent = arr.length;
     document.getElementById('otherProfileFriendStat').onclick = ()=>{
-      if(!otherUserData.showFriendsList){ toast('Bu kullanıcı arkadaş listesini gizli tutuyor.'); return; }
+      if(!otherUserData.showFriendsList){ toast(t('friendsListHidden')); return; }
       const sec = document.getElementById('otherProfileFriendsSection');
       const wasHidden = sec.classList.contains('hidden');
       sec.classList.toggle('hidden', !wasHidden);
       if(wasHidden){
         document.getElementById('otherProfileFriendsList').innerHTML = arr.length===0
-          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">Arkadaşı yok.</div>'
+          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">'+t('noFriendsOfUser')+'</div>'
           : arr.map(f=>`<div class="friend-row"><div class="avatar sm">${esc(initials(f.username))}</div><div class="meta">${esc(f.username)}</div></div>`).join('');
       }
     };
@@ -1711,23 +2303,23 @@ async function openOtherProfile(otherUid, otherUsername){
     const box = document.getElementById('otherProfileActions');
     if(isFriend){
       box.innerHTML = `
-        <button class="btn btn-primary" id="opMsgBtn">Mesaj Gönder</button>
-        <button class="btn btn-ghost" id="opUnfriendBtn">Arkadaşlıktan Çıkar</button>`;
+        <button class="btn btn-primary" id="opMsgBtn">${t('sendMsgBtn')}</button>
+        <button class="btn btn-ghost" id="opUnfriendBtn">${t('unfriendBtn')}</button>`;
       document.getElementById('opMsgBtn').onclick = ()=> startChatWith(otherUid, otherUsername);
       document.getElementById('opUnfriendBtn').onclick = ()=>{
-        showConfirm('Arkadaşlıktan Çıkar', otherUsername + ' arkadaş listenden kaldırılacak.', 'Çıkar', async ()=>{
+        showConfirm(t('unfriendConfirmTitle'), t('unfriendConfirmMsg'), t('removeBtn'), async ()=>{
           await db.collection('friendships').doc(pairId(state.uid, otherUid)).delete();
         }, true);
       };
     }else if(state.otherProfileOutPending){
       box.innerHTML = `
-        <button class="btn btn-ghost" disabled>İstek Gönderildi</button>
-        <button class="btn btn-ghost" id="opMsgBtn2">Mesaj Gönder</button>`;
+        <button class="btn btn-ghost" disabled>${t('requestSentBtn')}</button>
+        <button class="btn btn-ghost" id="opMsgBtn2">${t('sendMsgBtn')}</button>`;
       document.getElementById('opMsgBtn2').onclick = ()=> startChatWith(otherUid, otherUsername);
     }else if(state.otherProfileInPending){
       box.innerHTML = `
-        <button class="btn btn-primary" id="opAcceptBtn">Arkadaşlık İsteğini Kabul Et</button>
-        <button class="btn btn-ghost" id="opMsgBtn3">Mesaj Gönder</button>`;
+        <button class="btn btn-primary" id="opAcceptBtn">${t('acceptFriendReqBtn')}</button>
+        <button class="btn btn-ghost" id="opMsgBtn3">${t('sendMsgBtn')}</button>`;
       document.getElementById('opAcceptBtn').onclick = async ()=>{
         await db.collection('friendships').doc(pairId(state.uid, otherUid)).set({
           users:[state.uid, otherUid], usernames:{ [state.uid]: state.profile.username, [otherUid]: otherUsername },
@@ -1738,8 +2330,8 @@ async function openOtherProfile(otherUid, otherUsername){
       document.getElementById('opMsgBtn3').onclick = ()=> startChatWith(otherUid, otherUsername);
     }else{
       box.innerHTML = `
-        <button class="btn btn-primary" id="opAddBtn">Arkadaş Ekle</button>
-        <button class="btn btn-ghost" id="opMsgBtn4">Mesaj Gönder</button>`;
+        <button class="btn btn-primary" id="opAddBtn">${t('addFriendBtn')}</button>
+        <button class="btn btn-ghost" id="opMsgBtn4">${t('sendMsgBtn')}</button>`;
       document.getElementById('opAddBtn').onclick = ()=> sendFriendRequest(otherUid, otherUsername);
       document.getElementById('opMsgBtn4').onclick = ()=> startChatWith(otherUid, otherUsername);
     }
@@ -1760,9 +2352,9 @@ async function openOtherProfile(otherUid, otherUsername){
   state.unsub.profilePresence = db.collection('users').doc(otherUid).onSnapshot(d=>{
     const data = d.data() || {};
     const millis = data.lastActive && data.lastActive.toMillis ? data.lastActive.toMillis() : 0;
-    const online = millis>0 && (Date.now()-millis) < 90000;
+    const online = data.hideOnlineStatus !== true && millis>0 && (Date.now()-millis) < 90000;
     const el = document.getElementById('otherProfilePresence');
-    if(el){ el.textContent = online ? 'çevrimiçi' : 'çevrimdışı'; el.style.color = online ? 'var(--success)' : 'var(--text-faint)'; }
+    if(el){ el.textContent = online ? t('online') : t('offline'); el.style.color = online ? 'var(--success)' : 'var(--text-faint)'; }
   });
   render();
 }
@@ -1783,7 +2375,7 @@ document.getElementById('otherProfileRoomsList').addEventListener('click', async
   if(!row) return;
   const roomId = row.dataset.roomId;
   const doc = await safeGetDoc(db.collection('rooms').doc(roomId));
-  if(!doc.exists){ toast('Oda bulunamadı.'); return; }
+  if(!doc.exists){ toast(t('roomNotFound')); return; }
   const r = doc.data();
   const isMember = (r.members||[]).includes(state.uid);
   switchView('rooms');
@@ -1801,7 +2393,7 @@ async function startChatWith(otherUid, otherUsername){
   if(myBlocked.includes(otherUid)){ toast('Bu kullanıcıyı engelledin.'); return; }
   const otherDoc = await safeGetDoc(db.collection('users').doc(otherUid));
   const otherData = otherDoc.data() || {};
-  if((otherData.blocked||[]).includes(state.uid)){ toast('Bu kullanıcıya mesaj gönderemezsin.'); return; }
+  if((otherData.blocked||[]).includes(state.uid)){ toast(t('cantMessageBlocked')); return; }
 
   const cid = chatIdFor(state.uid, otherUid);
   const ref = db.collection('chats').doc(cid);
@@ -1822,7 +2414,7 @@ async function startChatWith(otherUid, otherUsername){
       await ref.update({ status:'pending', requestedBy: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
   }catch(e){
-    toast('Sohbet açılamadı, Firestore kurallarını kontrol et.');
+    toast(t('chatOpenFailed'));
     return;
   }
   closeOtherProfile(false);
@@ -1850,6 +2442,7 @@ function attachMyChats(){
 }
 
 function showTopNotif(name, text, chatId, otherUid){
+  if(state.profile && state.profile.showMsgBanner === false) return;
   const banner = document.getElementById('topNotifBanner');
   banner.classList.remove('hidden');
   document.getElementById('topNotifAvatar').textContent = initials(name);
@@ -1882,12 +2475,12 @@ function renderChatsAndRequests(){
       }
     } else if(c.status === 'accepted'){
       accepted.push(item);
-      const t = c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : 0;
+      const ts = c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : 0;
       const prev = state.chatLastSeen[doc.id] !== undefined ? state.chatLastSeen[doc.id] : 0;
-      if(state.chatsBooted && t > prev && c.lastSenderUid && c.lastSenderUid !== state.uid && doc.id !== state.activeChatId){
+      if(state.chatsBooted && ts > prev && c.lastSenderUid && c.lastSenderUid !== state.uid && doc.id !== state.activeChatId){
         showTopNotif(otherName, c.lastMessage, doc.id, otherUid);
       }
-      state.chatLastSeen[doc.id] = t;
+      state.chatLastSeen[doc.id] = ts;
     }
   });
   accepted.sort((a,b)=> (b.updatedAt?.toMillis?.()||0) - (a.updatedAt?.toMillis?.()||0));
@@ -1895,10 +2488,14 @@ function renderChatsAndRequests(){
   const badge = document.getElementById('msgNavBadge');
   let anyUnread = false;
   accepted.forEach(c=>{
-    if(c.id === state.activeChatId) state.chatMsgCountAtOpen[c.id] = c.messageCount || 0;
-    const baseline = state.chatMsgCountAtOpen[c.id] !== undefined ? state.chatMsgCountAtOpen[c.id] : 0;
-    const unread = (c.messageCount||0) - baseline;
-    c._unread = unread > 0 ? unread : 0;
+    if(c.id === state.activeChatId || c.lastSenderUid === state.uid){
+      c._unread = 0;
+      state.chatMsgCountAtOpen[c.id] = c.messageCount || 0;
+    }else{
+      const baseline = state.chatMsgCountAtOpen[c.id] !== undefined ? state.chatMsgCountAtOpen[c.id] : 0;
+      const unread = (c.messageCount||0) - baseline;
+      c._unread = unread > 0 ? unread : 0;
+    }
     if(c._unread > 0) anyUnread = true;
   });
   if(requests.length>0){
@@ -1918,17 +2515,17 @@ function renderChatsAndRequests(){
     <div class="req-card">
       <div class="req-top">
         <div class="avatar sm">${esc(initials(r.otherName))}</div>
-        <div class="meta"><div class="uname">${esc(r.otherName)}</div><div class="usub">sana mesaj göndermek istiyor</div></div>
+        <div class="meta"><div class="uname">${esc(r.otherName)}</div><div class="usub">${t('wantsToMessage')}</div></div>
       </div>
       <div class="req-actions">
-        <button class="btn btn-ghost btn-sm reject-req" data-id="${r.id}">Reddet</button>
-        <button class="btn btn-primary btn-sm accept-req" data-id="${r.id}" data-uid="${r.otherUid}" data-name="${esc(r.otherName)}">Kabul Et</button>
+        <button class="btn btn-ghost btn-sm reject-req" data-id="${r.id}">${t('rejectBtn')}</button>
+        <button class="btn btn-primary btn-sm accept-req" data-id="${r.id}" data-uid="${r.otherUid}" data-name="${esc(r.otherName)}">${t('acceptBtn')}</button>
       </div>
     </div>`).join('');
 
   const list = document.getElementById('chatsList');
   if(accepted.length===0){
-    list.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;padding:6px 4px;">Henüz sohbetin yok.</div>';
+    list.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;padding:6px 4px;">'+t('noChatsYet')+'</div>';
   }else{
     list.innerHTML = accepted.map(c=>{
       const unreadLabel = c._unread>0 ? (c._unread>=4 ? '4+' : c._unread) : '';
@@ -1937,8 +2534,8 @@ function renderChatsAndRequests(){
         <div class="avatar">${esc(initials(c.otherName))}</div>
         <div class="meta"><div class="uname">${esc(c.otherName)}</div><div class="lastmsg">${
           c._unread>0
-            ? `<span class="unread-badge">Yeni mesaj ${unreadLabel}</span>`
-            : (state.profile.hideMessagePreview ? 'Yeni mesaj' : esc(c.lastMessage||'Sohbete başla'))
+            ? `<span class="unread-badge">${t('newMsg')} ${unreadLabel}</span>`
+            : (state.profile.hideMessagePreview ? t('newMsg') : esc(c.lastMessage||t('startChat')))
         }</div></div>
         <div class="time">${timeAgo(c.updatedAt)}</div>
       </div>`;
@@ -1980,55 +2577,111 @@ function openChat(chatId, otherUid, otherName){
   if(state.unsub.presence) state.unsub.presence();
   if(state.presenceTimer) clearInterval(state.presenceTimer);
   let lastActiveMillis = 0;
+  let hideOnlineForThisUser = false;
   function updatePresenceLabel(){
     const el = document.getElementById('threadPresence');
     if(!el) return;
-    const online = lastActiveMillis > 0 && (Date.now() - lastActiveMillis) < 90000;
-    el.textContent = online ? 'çevrimiçi' : 'çevrimdışı';
+    const online = !hideOnlineForThisUser && lastActiveMillis > 0 && (Date.now() - lastActiveMillis) < 90000;
+    el.textContent = online ? t('online') : t('offline');
     el.style.color = online ? 'var(--success)' : 'var(--text-faint)';
   }
   state.unsub.presence = db.collection('users').doc(otherUid).onSnapshot(d=>{
     const data = d.data() || {};
     lastActiveMillis = data.lastActive && data.lastActive.toMillis ? data.lastActive.toMillis() : 0;
+    hideOnlineForThisUser = data.hideOnlineStatus === true;
     updatePresenceLabel();
   });
   state.presenceTimer = setInterval(updatePresenceLabel, 20000);
 
   if(state.unsub.thread) { state.unsub.thread(); }
+  if(state.unsub.chatMeta) { state.unsub.chatMeta(); }
+  if(state.threadIO) { state.threadIO.disconnect(); }
+
+  let lastMsgDocs = [];
+  let otherReadUpTo = 0;
+  let otherReadAtMillis = 0;
+  let myLastWrittenReadUpTo = 0;
+  let readWriteTimer = null;
+
+  function writeReadUpTo(idx){
+    if(idx <= myLastWrittenReadUpTo) return;
+    myLastWrittenReadUpTo = idx;
+    clearTimeout(readWriteTimer);
+    readWriteTimer = setTimeout(()=>{
+      db.collection('chats').doc(chatId).update({
+        ['readUpTo.'+state.uid]: idx,
+        ['readAt.'+state.uid]: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(()=>{});
+    }, 400);
+  }
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const idx = parseInt(entry.target.dataset.msgIndex, 10);
+        if(!isNaN(idx)) writeReadUpTo(idx+1);
+      }
+    });
+  }, { root: document.getElementById('threadBody'), threshold: 0.6 });
+  state.threadIO = io;
+
+  function renderThreadMessages(){
+    const body = document.getElementById('threadBody');
+    const wasNearBottom = (body.scrollHeight - body.scrollTop - body.clientHeight) < 80;
+    io.disconnect();
+    body.innerHTML = '';
+    lastMsgDocs.forEach((d, idx)=>{
+      const m = d.data();
+      const mine = m.uid === state.uid;
+      const b = document.createElement('div');
+      b.className = 'msg-bubble ' + (mine?'mine':'theirs');
+      b.dataset.msgIndex = idx;
+      let html = '';
+      if(m.replyTo) html += `<div class="reply-quote"><b>${esc(m.replyTo.authorName)}</b>: ${esc((m.replyTo.text||'').slice(0,60))}</div>`;
+      if(m.type === 'shared_post' && m.sharedPost){
+        html += `<div class="shared-post-card"><div class="spc-author">${esc(m.sharedPost.author)}</div><div class="spc-text">${esc(m.sharedPost.text)}</div><div class="spc-likes">♥ ${m.sharedPost.likes||0}</div></div>`;
+      } else if(m.type === 'shared_score' && m.sharedScore){
+        html += `<div class="shared-post-card"><div class="spc-author">🏆 ${esc(m.sharedScore.game||'Oyun')}</div><div class="spc-text">Skor: ${m.sharedScore.score}</div></div>`;
+      } else {
+        html += esc(m.text) + (m.edited?'<span class="msg-edited-tag">'+t('editedTag')+'</span>':'');
+      }
+      b.innerHTML = html;
+      const tsStr = formatMsgTimestamp(m.createdAt);
+      if(!mine){
+        attachSwipeToReply(b, { id:d.id, text:m.text, authorName: otherName });
+        attachLongPress(b, ()=> toast(tsStr || t('noTimestamp')));
+      }else{
+        const mid = d.id, chatIdSnap = chatId, origText = m.text;
+        attachLongPress(b, ()=> openMsgActionSheet(
+          ()=> openEditModal(t('editMsgTitle'), origText, 1000, async (newText)=>{
+            await db.collection('chats').doc(chatIdSnap).collection('messages').doc(mid).update({ text:newText, edited:true });
+          }),
+          ()=> showConfirm(t('deleteMsgTitle'), t('deleteMsgMsg'), t('deleteBtn'), async ()=>{
+            await db.collection('chats').doc(chatIdSnap).collection('messages').doc(mid).delete();
+          }, true),
+          tsStr
+        ));
+      }
+      body.appendChild(b);
+      io.observe(b);
+    });
+    if(otherReadUpTo > 0 && otherReadUpTo <= lastMsgDocs.length){
+      const targetBubble = body.children[otherReadUpTo-1];
+      if(targetBubble){
+        const seenLabel = document.createElement('div');
+        seenLabel.className = 'seen-label';
+        const recentlySeen = otherReadAtMillis && (Date.now()-otherReadAtMillis) < 120000;
+        seenLabel.textContent = recentlySeen ? 'Az önce görüldü' : ('Görüldü' + (otherReadAtMillis ? ' ' + new Date(otherReadAtMillis).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : ''));
+        targetBubble.insertAdjacentElement('afterend', seenLabel);
+      }
+    }
+    if(wasNearBottom) body.scrollTop = body.scrollHeight;
+  }
+
   state.unsub.thread = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc').limit(300)
     .onSnapshot(snap=>{
-      const body = document.getElementById('threadBody');
-      body.innerHTML = '';
-      snap.forEach(d=>{
-        const m = d.data();
-        const mine = m.uid === state.uid;
-        const b = document.createElement('div');
-        b.className = 'msg-bubble ' + (mine?'mine':'theirs');
-        let html = '';
-        if(m.replyTo) html += `<div class="reply-quote"><b>${esc(m.replyTo.authorName)}</b>: ${esc((m.replyTo.text||'').slice(0,60))}</div>`;
-        if(m.type === 'shared_post' && m.sharedPost){
-          html += `<div class="shared-post-card"><div class="spc-author">${esc(m.sharedPost.author)}</div><div class="spc-text">${esc(m.sharedPost.text)}</div><div class="spc-likes">♥ ${m.sharedPost.likes||0}</div></div>`;
-        } else if(m.type === 'shared_score' && m.sharedScore){
-          html += `<div class="shared-post-card"><div class="spc-author">🏆 ${esc(m.sharedScore.game||'Oyun')}</div><div class="spc-text">Skor: ${m.sharedScore.score}</div></div>`;
-        } else {
-          html += esc(m.text) + (m.edited?'<span class="msg-edited-tag">düzenlendi</span>':'');
-        }
-        b.innerHTML = html;
-        if(!mine) attachSwipeToReply(b, { id:d.id, text:m.text, authorName: otherName });
-        if(mine){
-          const mid = d.id, chatIdSnap = state.activeChatId, origText = m.text;
-          attachLongPress(b, ()=> openMsgActionSheet(
-            ()=> openEditModal('Mesajı Düzenle', origText, 1000, async (newText)=>{
-              await db.collection('chats').doc(chatIdSnap).collection('messages').doc(mid).update({ text:newText, edited:true });
-            }),
-            ()=> showConfirm('Mesajı Sil', 'Bu mesaj kalıcı olarak silinecek.', 'Sil', async ()=>{
-              await db.collection('chats').doc(chatIdSnap).collection('messages').doc(mid).delete();
-            }, true)
-          ));
-        }
-        body.appendChild(b);
-      });
-      body.scrollTop = body.scrollHeight;
+      lastMsgDocs = snap.docs;
+      renderThreadMessages();
       if(state.threadMsgCount >= 0 && snap.size > state.threadMsgCount){
         const last = snap.docs[snap.docs.length-1].data();
         if(last.uid !== state.uid) playPing();
@@ -2040,6 +2693,14 @@ function openChat(chatId, otherUid, otherName){
         renderChatsAndRequests();
       }
     });
+
+  state.unsub.chatMeta = db.collection('chats').doc(chatId).onSnapshot(d=>{
+    const c = d.data() || {};
+    otherReadUpTo = (c.readUpTo && c.readUpTo[otherUid]) || 0;
+    const ra = c.readAt && c.readAt[otherUid];
+    otherReadAtMillis = ra && ra.toMillis ? ra.toMillis() : 0;
+    renderThreadMessages();
+  });
 }
 
 document.getElementById('threadBody').addEventListener('click', (e)=>{
@@ -2047,12 +2708,12 @@ document.getElementById('threadBody').addEventListener('click', (e)=>{
     (id)=>{
       const bubble = e.target.closest('.msg-bubble');
       const current = bubble.textContent.replace('düzenlendi','').trim();
-      openEditModal('Mesajı Düzenle', current, 1000, async (newText)=>{
+      openEditModal(t('editMsgTitle'), current, 1000, async (newText)=>{
         await db.collection('chats').doc(state.activeChatId).collection('messages').doc(id).update({ text:newText, edited:true });
       });
     },
     (id)=>{
-      showConfirm('Mesajı Sil', 'Bu mesaj kalıcı olarak silinecek.', 'Sil', async ()=>{
+      showConfirm(t('deleteMsgTitle'), t('deleteMsgMsg'), t('deleteBtn'), async ()=>{
         await db.collection('chats').doc(state.activeChatId).collection('messages').doc(id).delete();
       }, true);
     }
@@ -2091,6 +2752,8 @@ document.getElementById('cancelReplyBtn').onclick = ()=>{
 function closeThread(push){
   if(state.unsub.thread){ state.unsub.thread(); delete state.unsub.thread; }
   if(state.unsub.presence){ state.unsub.presence(); delete state.unsub.presence; }
+  if(state.unsub.chatMeta){ state.unsub.chatMeta(); delete state.unsub.chatMeta; }
+  if(state.threadIO){ state.threadIO.disconnect(); state.threadIO = null; }
   if(state.presenceTimer){ clearInterval(state.presenceTimer); state.presenceTimer = null; }
   state.activeChatId = null; state.activeChatOther = null; state.replyTo = null;
   document.getElementById('chatThreadView').classList.add('hidden');
@@ -2114,7 +2777,7 @@ async function sendThreadMessage(){
       lastMessage: text.slice(0,80), lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       messageCount: firebase.firestore.FieldValue.increment(1)
     });
-  }catch(e){ toast('Gönderilemedi.'); }
+  }catch(e){ toast(t('sendFailed')); }
   state.replyTo = null;
   document.getElementById('replyPreviewBar').classList.add('hidden');
 }
@@ -2127,11 +2790,11 @@ document.getElementById('threadMsgInput').addEventListener('focus', ()=>{
 document.getElementById('blockUserBtn').onclick = ()=>{
   if(!state.activeChatOther) return;
   const other = state.activeChatOther;
-  showConfirm('Kullanıcıyı Engelle', other.username + ' artık sana mesaj gönderemez. Devam edilsin mi?', 'Engelle', async ()=>{
+  showConfirm(t('blockUserTitle'), other.username + t('blockUserMsg'), t('blockBtn'), async ()=>{
     await db.collection('users').doc(state.uid).update({ blocked: firebase.firestore.FieldValue.arrayUnion(other.uid) });
     state.profile.blocked = [...(state.profile.blocked||[]), other.uid];
     renderBlockedList();
-    toast(other.username + ' engellendi.');
+    toast(other.username + t('youBlockedUser'));
     closeThread(false);
   }, true);
 };
@@ -2144,26 +2807,26 @@ document.getElementById('openCreateRoomBtn').onclick = ()=>{
   root.innerHTML = `
     <div class="modal-overlay" id="createRoomOverlay">
       <div class="modal-card">
-        <div class="modal-title">Oda Oluştur</div>
+        <div class="modal-title">${t('createRoomTitle')}</div>
         <div class="field">
-          <label>Oda Adı</label>
-          <input type="text" id="newRoomName" placeholder="ör. sohbet-odasi" maxlength="30">
+          <label>${t('roomNameLabel')}</label>
+          <input type="text" id="newRoomName" placeholder="${t('roomNamePlaceholder')}" maxlength="30">
         </div>
         <div class="field">
-          <label>Görünürlük</label>
+          <label>${t('visibilityLabel')}</label>
           <div class="radio-group">
-            <div class="radio-opt active" data-vis="public">Herkese Açık</div>
-            <div class="radio-opt" data-vis="private">Davetle</div>
+            <div class="radio-opt active" data-vis="public">${t('publicOpt')}</div>
+            <div class="radio-opt" data-vis="private">${t('inviteOpt')}</div>
           </div>
         </div>
         <div class="field">
-          <label>Maksimum Üye</label>
+          <label>${t('maxMembersLabel')}</label>
           <input type="number" id="newRoomMax" value="20" min="2" max="500">
         </div>
         <div class="form-error" id="createRoomError"></div>
         <div class="modal-actions">
-          <button class="btn btn-ghost" id="cancelCreateRoom">Vazgeç</button>
-          <button class="btn btn-primary" id="confirmCreateRoom">Oluştur</button>
+          <button class="btn btn-ghost" id="cancelCreateRoom">${t('cancelBtn')}</button>
+          <button class="btn btn-primary" id="confirmCreateRoom">${t('createBtn')}</button>
         </div>
       </div>
     </div>`;
@@ -2179,10 +2842,10 @@ document.getElementById('openCreateRoomBtn').onclick = ()=>{
     const name = nameInput.value.trim();
     const max = parseInt(document.getElementById('newRoomMax').value) || 20;
     const errEl = document.getElementById('createRoomError');
-    if(name.length < 3 || name.length > 30){ errEl.textContent = 'Oda adı 3-30 karakter olmalı.'; return; }
+    if(name.length < 3 || name.length > 30){ errEl.textContent = t('roomNameLenErr'); return; }
     const nameLower = name.toLowerCase();
     const existing = await db.collection('rooms').where('nameLower','==',nameLower).limit(1).get();
-    if(!existing.empty){ errEl.textContent = 'Bu isimde bir oda zaten var.'; return; }
+    if(!existing.empty){ errEl.textContent = t('roomAlreadyExists'); return; }
     try{
       const ref = await db.collection('rooms').add({
         name, nameLower, ownerUid: state.uid, ownerUsername: state.profile.username,
@@ -2191,9 +2854,9 @@ document.getElementById('openCreateRoomBtn').onclick = ()=>{
         joinRequests: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       closeModal();
-      toast('Oda oluşturuldu.');
+      toast(t('roomCreated'));
       openRoom(ref.id);
-    }catch(e){ errEl.textContent = 'Oda oluşturulamadı.'; }
+    }catch(e){ errEl.textContent = t('roomCreateFailed'); }
   };
 };
 
@@ -2217,33 +2880,33 @@ document.getElementById('roomSearchInput').addEventListener('input', (e)=>{
         row.innerHTML = `
           <div class="meta">
             <div class="rname">${esc(r.name)}</div>
-            <div class="rsub">${(r.members||[]).length}/${r.maxMembers} üye · ${esc(r.ownerUsername)}</div>
+            <div class="rsub">${(r.members||[]).length}/${r.maxMembers} ${t('memberSuffix')} · ${esc(r.ownerUsername)}</div>
           </div>
-          <span class="room-badge ${r.isPublic?'pub':'priv'}">${r.isPublic?'Açık':'Davetli'}</span>`;
+          <span class="room-badge ${r.isPublic?'pub':'priv'}">${r.isPublic?t('openBadge'):t('inviteBadge')}</span>`;
         row.onclick = ()=> isMember ? openRoom(doc.id) : requestJoinRoom(doc.id, r);
         box.appendChild(row);
       });
       box.classList.toggle('hidden', !any);
-      if(!any) box.innerHTML = '<div class="sub" style="padding:10px 4px;color:var(--text-faint);font-size:13px;">Oda bulunamadı.</div>';
+      if(!any) box.innerHTML = '<div class="sub" style="padding:10px 4px;color:var(--text-faint);font-size:13px;">'+t('noRoomFound')+'</div>';
       box.classList.remove('hidden');
     }catch(e){}
   }, 300);
 });
 
 async function requestJoinRoom(roomId, room){
-  if((room.members||[]).length >= room.maxMembers){ toast('Oda dolu.'); return; }
+  if((room.members||[]).length >= room.maxMembers){ toast(t('roomFull')); return; }
   const ref = db.collection('rooms').doc(roomId);
   if(room.isPublic){
     await ref.update({
       members: firebase.firestore.FieldValue.arrayUnion(state.uid),
       ['memberUsernames.'+state.uid]: state.profile.username
     });
-    toast('Odaya katıldın.');
+    toast(t('joinedRoom'));
     openRoom(roomId);
   }else{
-    if((room.joinRequests||[]).includes(state.uid)){ toast('İsteğin zaten gönderildi.'); return; }
+    if((room.joinRequests||[]).includes(state.uid)){ toast(t('alreadyRequested')); return; }
     await ref.update({ joinRequests: firebase.firestore.FieldValue.arrayUnion(state.uid) });
-    toast('Katılma isteği gönderildi.');
+    toast(t('joinRequestSent'));
   }
 }
 
@@ -2253,7 +2916,7 @@ function attachMyRooms(){
     .onSnapshot(snap=>{
       const list = document.getElementById('myRoomsList');
       if(snap.empty){
-        list.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;padding:6px 4px;">Henüz bir odaya katılmadın.</div>';
+        list.innerHTML = '<div class="sub" style="color:var(--text-faint);font-size:13px;padding:6px 4px;">'+t('noRoomsYet')+'</div>';
         return;
       }
       const rooms = [];
@@ -2264,9 +2927,9 @@ function attachMyRooms(){
         <div class="room-row" data-id="${r.id}">
           <div class="meta">
             <div class="rname">${esc(r.name)} ${pendingCount>0?`<span class="room-badge priv">+${pendingCount}</span>`:''}</div>
-            <div class="rsub">${(r.members||[]).length}/${r.maxMembers} üye${r.ownerUid===state.uid?' · sahibi sensin':''}</div>
+            <div class="rsub">${(r.members||[]).length}/${r.maxMembers} ${t('memberSuffix')}${r.ownerUid===state.uid?' · '+t('youAreOwner'):''}</div>
           </div>
-          <span class="room-badge ${r.isPublic?'pub':'priv'}">${r.isPublic?'Açık':'Davetli'}</span>
+          <span class="room-badge ${r.isPublic?'pub':'priv'}">${r.isPublic?t('openBadge'):t('inviteBadge')}</span>
         </div>`;
       }).join('');
 
@@ -2283,7 +2946,7 @@ document.getElementById('myRoomsList').addEventListener('click', (e)=>{
 
 async function openRoom(roomId){
   const doc = await db.collection('rooms').doc(roomId).get();
-  if(!doc.exists){ toast('Oda bulunamadı.'); return; }
+  if(!doc.exists){ toast(t('roomNotFound')); return; }
   state.activeRoomId = roomId;
   state.activeRoom = { id: roomId, ...doc.data() };
   document.getElementById('roomsListView').classList.add('hidden');
@@ -2294,10 +2957,10 @@ async function openRoom(roomId){
 
   if(state.unsub.roomMeta) state.unsub.roomMeta();
   state.unsub.roomMeta = db.collection('rooms').doc(roomId).onSnapshot(d=>{
-    if(!d.exists){ toast('Oda silindi.'); closeRoom(false); return; }
+    if(!d.exists){ toast(t('roomDeleted')); closeRoom(false); return; }
     state.activeRoom = { id: roomId, ...d.data() };
     refreshRoomHeader(state.activeRoom);
-  }, ()=>{ toast('Oda yüklenirken bir sorun oluştu.'); closeRoom(false); });
+  }, ()=>{ toast(t('roomLoadError')); closeRoom(false); });
 
   if(state.unsub.roomMsgs) state.unsub.roomMsgs();
   state.unsub.roomMsgs = db.collection('rooms').doc(roomId).collection('messages').orderBy('createdAt','asc').limit(300)
@@ -2309,15 +2972,15 @@ async function openRoom(roomId){
         const mine = m.uid === state.uid;
         const b = document.createElement('div');
         b.className = 'msg-bubble ' + (mine?'mine':'theirs');
-        let html = (mine?'':`<span class="msg-author">${esc(m.username)}</span>`) + esc(m.text) + (m.edited?'<span class="msg-edited-tag">düzenlendi</span>':'');
+        let html = (mine?'':`<span class="msg-author">${esc(m.username)}</span>`) + esc(m.text) + (m.edited?'<span class="msg-edited-tag">'+t('editedTag')+'</span>':'');
         b.innerHTML = html;
         if(mine){
           const mid = d.id, roomIdSnap = state.activeRoomId, origText = m.text;
           attachLongPress(b, ()=> openMsgActionSheet(
-            ()=> openEditModal('Mesajı Düzenle', origText, 1000, async (newText)=>{
+            ()=> openEditModal(t('editMsgTitle'), origText, 1000, async (newText)=>{
               await db.collection('rooms').doc(roomIdSnap).collection('messages').doc(mid).update({ text:newText, edited:true });
             }),
-            ()=> showConfirm('Mesajı Sil', 'Bu mesaj kalıcı olarak silinecek.', 'Sil', async ()=>{
+            ()=> showConfirm(t('deleteMsgTitle'), t('deleteMsgMsg'), t('deleteBtn'), async ()=>{
               await db.collection('rooms').doc(roomIdSnap).collection('messages').doc(mid).delete();
             }, true)
           ));
@@ -2333,12 +2996,12 @@ document.getElementById('roomBody').addEventListener('click', (e)=>{
     (id)=>{
       const bubble = e.target.closest('.msg-bubble');
       const current = bubble.textContent.replace('düzenlendi','').trim();
-      openEditModal('Mesajı Düzenle', current, 1000, async (newText)=>{
+      openEditModal(t('editMsgTitle'), current, 1000, async (newText)=>{
         await db.collection('rooms').doc(state.activeRoomId).collection('messages').doc(id).update({ text:newText, edited:true });
       });
     },
     (id)=>{
-      showConfirm('Mesajı Sil', 'Bu mesaj kalıcı olarak silinecek.', 'Sil', async ()=>{
+      showConfirm(t('deleteMsgTitle'), t('deleteMsgMsg'), t('deleteBtn'), async ()=>{
         await db.collection('rooms').doc(state.activeRoomId).collection('messages').doc(id).delete();
       }, true);
     }
@@ -2371,7 +3034,7 @@ async function sendRoomMessage(){
     await db.collection('rooms').doc(state.activeRoomId).collection('messages').add({
       uid: state.uid, username: state.profile.username, text, createdAt: firebase.firestore.FieldValue.serverTimestamp(), edited:false
     });
-  }catch(e){ toast('Gönderilemedi.'); }
+  }catch(e){ toast(t('sendFailed')); }
 }
 document.getElementById('roomSendBtn').onclick = sendRoomMessage;
 document.getElementById('roomMsgInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendRoomMessage(); });
@@ -2387,12 +3050,12 @@ document.getElementById('roomMembersBtn').onclick = ()=>{
   root.innerHTML = `
     <div class="modal-overlay" id="membersOverlay">
       <div class="modal-card">
-        <div class="modal-title">Üyeler (${(room.members||[]).length})</div>
+        <div class="modal-title">${t('membersTitle')} (${(room.members||[]).length})</div>
         <div>${(room.members||[]).map(uid=>`
           <div class="member-pill">
             <div class="avatar sm">${esc(initials(names[uid]||'?'))}</div>
             <div class="meta" style="flex:1;font-weight:700;font-size:13.5px;">${esc(names[uid]||'kullanıcı')}</div>
-            ${uid===room.ownerUid?'<span class="role">Sahibi</span>':''}
+            ${uid===room.ownerUid?'<span class="role">'+t('ownerLabel')+'</span>':''}
           </div>`).join('')}
         </div>
       </div>
@@ -2408,8 +3071,8 @@ document.getElementById('roomRequestsBtn').onclick = ()=>{
   root.innerHTML = `
     <div class="modal-overlay" id="reqOverlay">
       <div class="modal-card">
-        <div class="modal-title">Katılma İstekleri</div>
-        <div id="roomReqList">${reqs.length===0?'<div class="sub" style="color:var(--text-faint);font-size:13px;">Bekleyen istek yok.</div>':''}</div>
+        <div class="modal-title">${t('joinRequestsTitle')}</div>
+        <div id="roomReqList">${reqs.length===0?'<div class="sub" style="color:var(--text-faint);font-size:13px;">'+t('noPendingRequests')+'</div>':''}</div>
       </div>
     </div>`;
   document.getElementById('reqOverlay').onclick = (e)=>{ if(e.target.id==='reqOverlay') closeModal(); };
@@ -2420,10 +3083,10 @@ document.getElementById('roomRequestsBtn').onclick = ()=>{
     const row = document.createElement('div');
     row.className = 'req-card';
     row.innerHTML = `
-      <div class="req-top"><div class="avatar sm">${esc(initials(uname))}</div><div class="meta"><div class="uname">${esc(uname)}</div><div class="usub">katılmak istiyor</div></div></div>
+      <div class="req-top"><div class="avatar sm">${esc(initials(uname))}</div><div class="meta"><div class="uname">${esc(uname)}</div><div class="usub">${t('wantsToJoin')}</div></div></div>
       <div class="req-actions">
-        <button class="btn btn-ghost btn-sm decline-join">Reddet</button>
-        <button class="btn btn-primary btn-sm accept-join">Kabul Et</button>
+        <button class="btn btn-ghost btn-sm decline-join">${t('rejectBtn')}</button>
+        <button class="btn btn-primary btn-sm accept-join">${t('acceptBtn')}</button>
       </div>`;
     row.querySelector('.accept-join').onclick = async ()=>{
       await db.collection('rooms').doc(room.id).update({
@@ -2432,7 +3095,7 @@ document.getElementById('roomRequestsBtn').onclick = ()=>{
         ['memberUsernames.'+uid]: uname
       });
       row.remove();
-      toast(uname + ' odaya katıldı.');
+      toast(uname + t('joinedRoomSuffix'));
     };
     row.querySelector('.decline-join').onclick = async ()=>{
       await db.collection('rooms').doc(room.id).update({ joinRequests: firebase.firestore.FieldValue.arrayRemove(uid) });
@@ -2447,13 +3110,13 @@ document.getElementById('roomLeaveOrDeleteBtn').onclick = ()=>{
   const room = state.activeRoom;
   const isOwner = room.ownerUid === state.uid;
   if(isOwner){
-    showConfirm('Odayı Sil', '"' + room.name + '" odası kalıcı olarak silinecek. Emin misin?', 'Odayı Sil', async ()=>{
+    showConfirm(t('deleteRoomTitle'), '"' + room.name + '" ' + t('deleteRoomConfirmMsg'), t('deleteRoomTitle'), async ()=>{
       await db.collection('rooms').doc(room.id).delete();
-      toast('Oda silindi.');
+      toast(t('roomDeleted'));
       closeRoom(false);
     }, true);
   }else{
-    showConfirm('Odadan Ayrıl', '"' + room.name + '" odasından ayrılmak istediğine emin misin?', 'Ayrıl', async ()=>{
+    showConfirm(t('leaveRoomTitle'), t('leaveRoomConfirmMsg') + ' "' + room.name + '"?', t('leaveBtn'), async ()=>{
       await db.collection('rooms').doc(room.id).update({
         members: firebase.firestore.FieldValue.arrayRemove(state.uid)
       });
@@ -2463,8 +3126,45 @@ document.getElementById('roomLeaveOrDeleteBtn').onclick = ()=>{
 };
 
 /* =========================================================
-   SETTINGS
+   GAMES — shared canvas sizing helper (deterministic, no CSS aspect-ratio dependency)
 ========================================================= */
+function setupFullscreenBtn(btnId, wrapEl, onResizeAfter){
+  const btn = document.getElementById(btnId);
+  btn.addEventListener('click', ()=>{
+    wrapEl.classList.toggle('fullscreen');
+    setTimeout(onResizeAfter, 50);
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && wrapEl.classList.contains('fullscreen')){
+      wrapEl.classList.remove('fullscreen');
+      setTimeout(onResizeAfter, 50);
+    }
+  });
+}
+function sizeGameCanvas(canvas, ctx){
+  const wrap = canvas.parentElement;
+  const isFullscreen = wrap.classList.contains('fullscreen');
+  let w, h;
+  if(isFullscreen){
+    w = window.innerWidth;
+    h = window.innerHeight;
+  }else{
+    w = Math.round(wrap.clientWidth || wrap.getBoundingClientRect().width);
+    if(!w) return null;
+    h = Math.round(w * 4/3);
+    const maxH = Math.round(window.innerHeight * 0.6);
+    if(h > maxH) h = maxH;
+    wrap.style.height = h + 'px';
+  }
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(w*dpr);
+  canvas.height = Math.round(h*dpr);
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { W:w, H:h };
+}
+
 /* =========================================================
    GAMES — Flappy Dot
 ========================================================= */
@@ -2473,16 +3173,13 @@ let snakeRaf = null;
 function initSnakeGame(){
   const canvas = document.getElementById('snakeCanvas');
   const ctx = canvas.getContext('2d');
-  const cols = 14, rows = 18;
+  const cols = 16, rows = 20;
   let W=0, H=0, cell=0;
 
   function resize(){
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    W = rect.width; H = rect.height;
-    if(W===0 || H===0) return;
-    canvas.width = W*dpr; canvas.height = H*dpr;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const dims = sizeGameCanvas(canvas, ctx);
+    if(!dims) return;
+    W = dims.W; H = dims.H;
     cell = Math.min(W/cols, H/rows);
   }
   resize();
@@ -2491,7 +3188,7 @@ function initSnakeGame(){
   setTimeout(resize, 200);
   setTimeout(resize, 600);
 
-  const S = { snake:[], dir:{x:1,y:0}, nextDir:{x:1,y:0}, food:null, running:false, started:false, over:false, speed:8, acc:0 };
+  const S = { snake:[], dir:{x:1,y:0}, nextDir:{x:1,y:0}, food:null, running:false, started:false, over:false, speed:6.5, acc:0 };
 
   function placeFood(){
     const free = [];
@@ -2503,7 +3200,7 @@ function initSnakeGame(){
   }
 
   function reset(){
-    const cx = Math.floor(cols/2), cy = Math.floor(rows/2);
+    const cx = Math.floor(cols*0.35), cy = Math.floor(rows/2);
     S.snake = [{x:cx-1,y:cy},{x:cx-2,y:cy},{x:cx-3,y:cy}];
     S.dir = {x:1,y:0}; S.nextDir = {x:1,y:0};
     S.over = false; S.started = false; S.running = false; S.acc = 0;
@@ -2581,6 +3278,7 @@ function initSnakeGame(){
     S.snake.unshift({x:nx,y:ny});
     if(S.food && nx===S.food.x && ny===S.food.y){
       document.getElementById('snakeLiveScore').textContent = S.snake.length-3;
+      playGameSound(720);
       placeFood();
     }else{
       S.snake.pop();
@@ -2617,6 +3315,7 @@ function initSnakeGame(){
   document.getElementById('snakeBestScore').textContent = state.profile.snakeHighScore || 0;
   if(snakeRaf) cancelAnimationFrame(snakeRaf);
   snakeRaf = requestAnimationFrame(loop);
+  setupFullscreenBtn('snakeFullscreenBtn', canvas.parentElement, resize);
 }
 function initFlappyGame(){
   const canvas = document.getElementById('flappyCanvas');
@@ -2624,12 +3323,9 @@ function initFlappyGame(){
   let W=0, H=0;
 
   function resize(){
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    W = rect.width; H = rect.height;
-    if(W===0 || H===0) return;
-    canvas.width = W*dpr; canvas.height = H*dpr;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const dims = sizeGameCanvas(canvas, ctx);
+    if(!dims) return;
+    W = dims.W; H = dims.H;
   }
   resize();
   window.addEventListener('resize', resize);
@@ -2689,18 +3385,22 @@ function initFlappyGame(){
     ctx.closePath(); ctx.fill();
   }
 
+  let flappyPrevTs = 0;
   function loop(ts){
     const gamesVisible = !document.getElementById('gamesView').classList.contains('hidden');
     if(gamesVisible){
       if(W===0) resize();
+      if(!flappyPrevTs) flappyPrevTs = ts;
+      const dt = Math.min((ts - flappyPrevTs) / 16.6667, 3);
+      flappyPrevTs = ts;
       if(G.running){
-        G.bird.vy += G.gravity;
-        G.bird.y += G.bird.vy;
+        G.bird.vy += G.gravity*dt;
+        G.bird.y += G.bird.vy*dt;
         if(!G.lastSpawn || ts - G.lastSpawn > 1500){ spawnPipe(); G.lastSpawn = ts; }
-        G.pipes.forEach(p=> p.x -= G.speed);
+        G.pipes.forEach(p=> p.x -= G.speed*dt);
         G.pipes = G.pipes.filter(p=> p.x > -G.pipeW-20);
         G.pipes.forEach(p=>{
-          if(!p.passed && p.x + G.pipeW < G.bird.x){ p.passed = true; G.score++; document.getElementById('gameLiveScore').textContent = G.score; }
+          if(!p.passed && p.x + G.pipeW < G.bird.x){ p.passed = true; G.score++; document.getElementById('gameLiveScore').textContent = G.score; playGameSound(660); }
         });
         if(G.bird.y - G.bird.r < 0 || G.bird.y + G.bird.r > H) endGame();
         G.pipes.forEach(p=>{
@@ -2736,6 +3436,7 @@ function initFlappyGame(){
   document.getElementById('gameBestScore').textContent = state.profile.flappyHighScore || 0;
   if(flappyRaf) cancelAnimationFrame(flappyRaf);
   flappyRaf = requestAnimationFrame(loop);
+  setupFullscreenBtn('flappyFullscreenBtn', canvas.parentElement, resize);
 }
 
 function openShareScoreModal(score, gameName){
@@ -2745,14 +3446,14 @@ function openShareScoreModal(score, gameName){
   root.innerHTML = `
     <div class="modal-overlay" id="shareScoreOverlay">
       <div class="modal-card">
-        <div class="modal-title">Skoru Paylaş</div>
+        <div class="modal-title">${t('shareScoreTitle')}</div>
         <div id="shareScoreFriendsList">${friends.length===0
-          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">Henüz arkadaşın yok.</div>'
+          ? '<div class="sub" style="color:var(--text-faint);font-size:13px;">'+t('shareFriendsEmpty')+'</div>'
           : friends.map(f=>`
             <div class="friend-row">
               <div class="avatar sm">${esc(initials(f.username))}</div>
               <div class="meta">${esc(f.username)}</div>
-              <button class="btn btn-primary btn-sm share-score-btn" data-uid="${f.uid}" data-name="${esc(f.username)}">Gönder</button>
+              <button class="btn btn-primary btn-sm share-score-btn" data-uid="${f.uid}" data-name="${esc(f.username)}">${t('sendBtn')}</button>
             </div>`).join('')}
         </div>
       </div>
@@ -2761,9 +3462,9 @@ function openShareScoreModal(score, gameName){
   document.getElementById('shareScoreFriendsList').addEventListener('click', async (e)=>{
     const btn = e.target.closest('.share-score-btn');
     if(!btn) return;
-    btn.disabled = true; btn.textContent = 'Gönderiliyor…';
+    btn.disabled = true; btn.textContent = t('sending');
     const ok = await shareScoreToFriend(score, btn.dataset.uid, btn.dataset.name, gameName);
-    if(ok){ btn.textContent = 'Gönderildi ✓'; } else { btn.disabled = false; btn.textContent = 'Gönder'; }
+    if(ok){ btn.textContent = t('sent'); } else { btn.disabled = false; btn.textContent = t('sendBtn'); }
   });
 }
 
@@ -2793,14 +3494,17 @@ async function shareScoreToFriend(score, friendUid, friendUsername, gameName){
       lastMessage: preview, lastSenderUid: state.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       messageCount: firebase.firestore.FieldValue.increment(1)
     });
-    toast(friendUsername + ' kişisine gönderildi.');
+    toast(friendUsername + t('sentToUserSuffix'));
     return true;
   }catch(e){
-    toast('Gönderilemedi, tekrar dene.');
+    toast(t('sendFailedRetry'));
     return false;
   }
 }
 
+/* =========================================================
+   SETTINGS
+========================================================= */
 function bindSwitch(elId, field){
   document.getElementById(elId).onclick = async function(){
     const newVal = !this.classList.contains('on');
@@ -2808,6 +3512,7 @@ function bindSwitch(elId, field){
     state.profile[field] = newVal;
     await db.collection('users').doc(state.uid).update({ [field]: newVal });
     if(field === 'lightMode') document.body.classList.toggle('light', newVal);
+    if(field === 'largeText') document.body.classList.toggle('large-text', newVal);
     if(field === 'hideMessagePreview' || field === 'allowNonFriendMessages') renderChatsAndRequests();
   };
 }
@@ -2819,6 +3524,25 @@ bindSwitch('showFriendsSwitch', 'showFriendsList');
 bindSwitch('showRoomsSwitch', 'showJoinedRooms');
 bindSwitch('showPostsSwitch', 'showMyPosts');
 bindSwitch('lightModeSwitch', 'lightMode');
+bindSwitch('hideOnlineSwitch', 'hideOnlineStatus');
+bindSwitch('gameSoundSwitch', 'gameSoundEnabled');
+bindSwitch('largeTextSwitch', 'largeText');
+bindSwitch('msgBannerSwitch', 'showMsgBanner');
+
+function updateLangOptButtons(){
+  document.getElementById('langOptTr').classList.toggle('active', currentLang === 'tr');
+  document.getElementById('langOptEn').classList.toggle('active', currentLang === 'en');
+}
+document.getElementById('langOptTr').addEventListener('click', async ()=>{
+  applyLanguage('tr');
+  updateLangOptButtons();
+  if(state.profile){ state.profile.language = 'tr'; await db.collection('users').doc(state.uid).update({ language:'tr' }).catch(()=>{}); }
+});
+document.getElementById('langOptEn').addEventListener('click', async ()=>{
+  applyLanguage('en');
+  updateLangOptButtons();
+  if(state.profile){ state.profile.language = 'en'; await db.collection('users').doc(state.uid).update({ language:'en' }).catch(()=>{}); }
+});
 
 document.getElementById('themeSwatches').addEventListener('click', async (e)=>{
   const sw = e.target.closest('.swatch');
@@ -2832,43 +3556,48 @@ document.getElementById('themeSwatches').addEventListener('click', async (e)=>{
 function renderBlockedList(){
   const box = document.getElementById('blockedList');
   const blocked = state.profile.blocked || [];
-  if(blocked.length === 0){ box.innerHTML = '<div class="sub">Henüz kimseyi engellemedin.</div>'; return; }
+  if(blocked.length === 0){ box.innerHTML = '<div class="sub">'+t('noBlockedYet')+'</div>'; return; }
   box.innerHTML = '';
   blocked.forEach(async (uid)=>{
     const udoc = await db.collection('users').doc(uid).get();
     const uname = udoc.exists ? udoc.data().username : 'kullanıcı';
     const row = document.createElement('div');
     row.className = 'blocked-row';
-    row.innerHTML = `<div class="avatar sm">${esc(initials(uname))}</div><div class="meta">${esc(uname)}</div><button class="btn btn-ghost btn-sm">Kaldır</button>`;
+    row.innerHTML = `<div class="avatar sm">${esc(initials(uname))}</div><div class="meta">${esc(uname)}</div><button class="btn btn-ghost btn-sm">${t('removeBtn')}</button>`;
     row.querySelector('button').onclick = async ()=>{
       await db.collection('users').doc(state.uid).update({ blocked: firebase.firestore.FieldValue.arrayRemove(uid) });
       state.profile.blocked = (state.profile.blocked||[]).filter(x=>x!==uid);
       row.remove();
-      if((state.profile.blocked||[]).length===0) box.innerHTML = '<div class="sub">Henüz kimseyi engellemedin.</div>';
-      toast(uname + ' engeli kaldırıldı.');
+      if((state.profile.blocked||[]).length===0) box.innerHTML = '<div class="sub">'+t('noBlockedYet')+'</div>';
+      toast(uname + t('unblockedSuffix'));
     };
     box.appendChild(row);
   });
 }
 
 document.getElementById('logoutBtn').onclick = ()=>{
-  showConfirm('Çıkış Yap', 'Hesabından çıkış yapmak istediğine emin misin?', 'Çıkış Yap', ()=> auth.signOut());
+  showConfirm(t('logoutConfirmTitle'), t('logoutConfirmMsg'), t('logoutBtn'), ()=> auth.signOut());
 };
 
+document.getElementById('switchAccountBtn').addEventListener('click', openSwitchAccountModal);
+
 document.getElementById('deleteAccountBtn').onclick = ()=>{
-  showConfirm('Hesabı Sil', 'Bu işlem geri alınamaz. Hesabın ve kullanıcı adın kalıcı olarak silinecek. Devam edilsin mi?', 'Hesabı Sil', async ()=>{
+  showConfirm(t('deleteAccountConfirmTitle'), t('deleteAccountConfirmMsg'), t('deleteAccountConfirmTitle'), async ()=>{
     try{
       const uid = state.uid;
       const usernameLower = state.profile.usernameLower;
+      const deletedAppName = currentAppName;
       await db.collection('usernames').doc(usernameLower).delete();
       await db.collection('users').doc(uid).delete();
       await auth.currentUser.delete();
-      toast('Hesap silindi.');
+      accountsList = accountsList.filter(a=>a.appName !== deletedAppName);
+      saveAccountsToStorage(accountsList.length>0 ? accountsList[0].appName : null);
+      toast(t('accountDeleted'));
     }catch(err){
       if(err && err.code === 'auth/requires-recent-login'){
-        toast('Bu işlem için tekrar giriş yapman gerekiyor. Çıkış yapıp tekrar giriş dene.');
+        toast(t('reAuthRequired'));
       }else{
-        toast('Hesap silinemedi, tekrar dene.');
+        toast(t('accountDeleteFailed'));
       }
     }
   }, true);
